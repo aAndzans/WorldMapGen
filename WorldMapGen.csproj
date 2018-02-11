@@ -78,10 +78,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\WorldMapGen\Assets\Scripts\MapGenerator.cs" />
-    <Compile Include="Assets\WorldMapGen\Assets\Scripts\MapParameters.cs" />
-    <Compile Include="Assets\WorldMapGen\Assets\Scripts\Tile.cs" />
-    <Compile Include="Assets\WorldMapGen\Assets\Scripts\TileType.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator.cs" />
+    <Compile Include="Assets\Scripts\MapParameters.cs" />
+    <Compile Include="Assets\Scripts\Tile.cs" />
+    <Compile Include="Assets\Scripts\TileType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
