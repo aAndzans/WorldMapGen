@@ -230,8 +230,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parameters:
+    customSeed: 0
+    seed: 0
     width: 80
     height: 52
+    tileScale: {x: 0, y: 0}
+    oceanPercentage: 0
+    rotateWest: 0
+    wrapX: 0
+    wrapY: 0
+    noiseScale: 0
+    tileTypes:
+    - name: 
+      elevation:
+      - min: 0
+        max: 0
+      temperature: []
+      precipitation: []
+      sprite: {fileID: 0}
+    - name: 
+      elevation: []
+      temperature: []
+      precipitation: []
+      sprite: {fileID: 0}
+    highPressureLatitude: 0
+    lowPressureLatitude: 0
+    equatorTemperature: 0
+    poleTemperature: 0
+    temperatureLapseRate: 0
+    equatorRainfall: 0
+    equatorRainfallEvenness: 0
+    midLatitudeRainfall: 0
+    midLatitudeRainfallEvenness: 0
+    rainfallOceanEFoldingDistance: 0
+    condensationRateMultiplier: 0
+    saturationPressureExponentMultiplier: 0
+    saturationPressureExponentDivisorTerm: 0
+    moistureScaleHeightDivisor: 0
 --- !u!4 &585901999
 Transform:
   m_ObjectHideFlags: 0

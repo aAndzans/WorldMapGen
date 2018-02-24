@@ -41,7 +41,8 @@ namespace WorldMapGen
             get { return name; }
         }
 
-        // Ranges of elevations (m above sea level) where the type may appear
+        // Ranges of elevations (in m above sea level) where the type may
+        // appear
         [SerializeField]
         protected Range[] elevation;
         public Range[] Elevation
@@ -49,7 +50,7 @@ namespace WorldMapGen
             get { return elevation; }
         }
 
-        // Ranges of temperatures (°C) where the type may appear
+        // Ranges of temperatures (in °C) where the type may appear
         [SerializeField]
         protected Range[] temperature;
         public Range[] Temperature
@@ -57,7 +58,8 @@ namespace WorldMapGen
             get { return temperature; }
         }
 
-        // Ranges of precipitation amounts (mm/year) where the type may appear
+        // Ranges of precipitation amounts (in mm/year) where the type may
+        // appear
         [SerializeField]
         protected Range[] precipitation;
         public Range[] Precipitation
