@@ -12,6 +12,7 @@ namespace WorldMapGen
         public bool CustomSeed
         {
             get { return customSeed; }
+            set { customSeed = value; }
         }
 
         // The custom random seed
@@ -21,6 +22,7 @@ namespace WorldMapGen
         public int Seed
         {
             get { return seed; }
+            set { seed = value; }
         }
 
         // Number of tiles in X axis
@@ -29,6 +31,7 @@ namespace WorldMapGen
         public int Width
         {
             get { return width; }
+            set { width = value; }
         }
 
         // Number of tiles in Y axis
@@ -37,6 +40,7 @@ namespace WorldMapGen
         public int Height
         {
             get { return height; }
+            set { height = value; }
         }
 
         // Map scale in each axis (in km/tile)
@@ -45,6 +49,7 @@ namespace WorldMapGen
         public Vector2 TileScale
         {
             get { return tileScale; }
+            set { tileScale = value; }
         }
 
         // Approximate percentage of the world that is below sea level
@@ -53,6 +58,7 @@ namespace WorldMapGen
         public float OceanPercentage
         {
             get { return oceanPercentage; }
+            set { oceanPercentage = value; }
         }
 
         // If true, the world rotates west (opposite the real Earth)
@@ -61,6 +67,7 @@ namespace WorldMapGen
         public bool RotateWest
         {
             get { return rotateWest; }
+            set { rotateWest = value; }
         }
 
         // If true, the map wraps on the X axis
@@ -69,6 +76,7 @@ namespace WorldMapGen
         public bool WrapX
         {
             get { return wrapX; }
+            set { wrapX = value; }
         }
 
         // If true, the map wraps on the Y axis
@@ -77,6 +85,7 @@ namespace WorldMapGen
         public bool WrapY
         {
             get { return wrapY; }
+            set { wrapY = value; }
         }
 
         // Amount to scale the elevation noise function on X and Y
@@ -87,6 +96,7 @@ namespace WorldMapGen
         public float NoiseScale
         {
             get { return noiseScale; }
+            set { noiseScale = value; }
         }
 
         // Every tile type that may be in the map
@@ -95,6 +105,7 @@ namespace WorldMapGen
         public TileType[] TileTypes
         {
             get { return tileTypes; }
+            set { tileTypes = value; }
         }
 
         // A latitude (in degrees) where pressure is high
@@ -103,6 +114,7 @@ namespace WorldMapGen
         public float HighPressureLatitude
         {
             get { return highPressureLatitude; }
+            set { highPressureLatitude = value; }
         }
 
         // A latitude (in degrees) where pressure is low
@@ -111,6 +123,7 @@ namespace WorldMapGen
         public float LowPressureLatitude
         {
             get { return lowPressureLatitude; }
+            set { lowPressureLatitude = value; }
         }
 
         // Temperature at sea level at the equator (in °C)
@@ -119,6 +132,7 @@ namespace WorldMapGen
         public float EquatorTemperature
         {
             get { return equatorTemperature; }
+            set { equatorTemperature = value; }
         }
 
         // Temperature at sea level at the poles (in °C)
@@ -127,6 +141,7 @@ namespace WorldMapGen
         public float PoleTemperature
         {
             get { return poleTemperature; }
+            set { poleTemperature = value; }
         }
 
         // Rate at which temperature decreases with elevation (in K/m)
@@ -135,6 +150,7 @@ namespace WorldMapGen
         public float TemperatureLapseRate
         {
             get { return temperatureLapseRate; }
+            set { temperatureLapseRate = value; }
         }
 
         // Maximum value of the term corresponding to the equator in the
@@ -144,6 +160,7 @@ namespace WorldMapGen
         public float EquatorRainfall
         {
             get { return equatorRainfall; }
+            set { equatorRainfall = value; }
         }
 
         // The higher this value, the less precpitation decreases with distance
@@ -153,6 +170,7 @@ namespace WorldMapGen
         public float EquatorRainfallEvenness
         {
             get { return equatorRainfallEvenness; }
+            set { equatorRainfallEvenness = value; }
         }
 
         // Maximum value of the term corresponding to lowPressureLatitude in
@@ -162,6 +180,7 @@ namespace WorldMapGen
         public float MidLatitudeRainfall
         {
             get { return midLatitudeRainfall; }
+            set { midLatitudeRainfall = value; }
         }
 
         // The higher this value, the less precpitation decreases with distance
@@ -171,6 +190,7 @@ namespace WorldMapGen
         public float MidLatitudeRainfallEvenness
         {
             get { return midLatitudeRainfallEvenness; }
+            set { midLatitudeRainfallEvenness = value; }
         }
 
         // Distance from the ocean at which precpitation decreases e times
@@ -179,6 +199,7 @@ namespace WorldMapGen
         public float RainfallOceanEFoldingDistance
         {
             get { return rainfallOceanEFoldingDistance; }
+            set { rainfallOceanEFoldingDistance = value; }
         }
 
         // Multiplier used in the orographic precipitation formula
@@ -188,6 +209,7 @@ namespace WorldMapGen
         public float CondensationRateMultiplier
         {
             get { return condensationRateMultiplier; }
+            set { condensationRateMultiplier = value; }
         }
 
         // Multiplier used in the exponent in the saturation vapour pressure
@@ -197,6 +219,7 @@ namespace WorldMapGen
         public float SaturationPressureExponentMultiplier
         {
             get { return saturationPressureExponentMultiplier; }
+            set { saturationPressureExponentMultiplier = value; }
         }
 
         // Constant (in °C) added to the divisor in the exponent in the
@@ -206,6 +229,7 @@ namespace WorldMapGen
         public float SaturationPressureExponentDivisorTerm
         {
             get { return saturationPressureExponentDivisorTerm; }
+            set { saturationPressureExponentDivisorTerm = value; }
         }
 
         // Divisor (in K) used in the moisture scale height formula
@@ -214,6 +238,7 @@ namespace WorldMapGen
         public float MoistureScaleHeightDivisor
         {
             get { return moistureScaleHeightDivisor; }
+            set { moistureScaleHeightDivisor = value; }
         }
     }
 }
