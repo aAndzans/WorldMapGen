@@ -1,7 +1,9 @@
-﻿namespace WorldMapGen
+﻿using UnityEngine.Tilemaps;
+
+namespace WorldMapGen
 {
     // An individual tile in the generated map
-    public class Tile
+    public class Tile : TileBase
     {
         // The type of the tile
         public TileType Type { get; set; }
