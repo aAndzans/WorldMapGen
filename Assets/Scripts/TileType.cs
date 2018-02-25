@@ -12,6 +12,7 @@ namespace WorldMapGen
         public float Min
         {
             get { return min; }
+            set { min = value; }
         }
 
         // The maximum value
@@ -20,6 +21,7 @@ namespace WorldMapGen
         public float Max
         {
             get { return max; }
+            set { max = value; }
         }
 
         // Return whether the given value is within this range
@@ -39,6 +41,7 @@ namespace WorldMapGen
         public string Name
         {
             get { return name; }
+            set { name = value; }
         }
 
         // Ranges of elevations (in m above sea level) where the type may
@@ -48,6 +51,7 @@ namespace WorldMapGen
         public Range[] Elevation
         {
             get { return elevation; }
+            set { elevation = value; }
         }
 
         // Ranges of temperatures (in °C) where the type may appear
@@ -56,6 +60,7 @@ namespace WorldMapGen
         public Range[] Temperature
         {
             get { return temperature; }
+            set { temperature = value; }
         }
 
         // Ranges of precipitation amounts (in mm/year) where the type may
@@ -65,11 +70,17 @@ namespace WorldMapGen
         public Range[] Precipitation
         {
             get { return precipitation; }
+            set { precipitation = value; }
         }
 
         // The sprite for this type
         [SerializeField]
         protected Sprite sprite;
+        public Sprite Sprite
+        {
+            get { return sprite; }
+            set { sprite = value; }
+        }
 
         // If this type's elevation ranges include both positive and negative
         // values, return false
