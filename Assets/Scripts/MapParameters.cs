@@ -240,5 +240,14 @@ namespace WorldMapGen
             get { return moistureScaleHeightDivisor; }
             set { moistureScaleHeightDivisor = value; }
         }
+
+        // Sprite used for tiles that have no suitable tile type
+        [SerializeField]
+        protected Sprite invalidSprite;
+        public Sprite InvalidSprite
+        {
+            get { return invalidSprite; }
+            set { invalidSprite = value; }
+        }
     }
 }

@@ -123,15 +123,13 @@ namespace WorldMapGen
             return false;
         }
 
-        // Return whether the given values for elevation, temperature and
-        // precipitation are within this type's ranges
-        public virtual bool ValuesInRanges(
-            float elevation, float temperature, float precipitation)
+        // Return whether the tile's climate is within this type's ranges
+        public virtual bool ValuesInRanges(Tile tile)
         {
             return 
-                ValueInAnyRange(this.elevation, elevation) &&
-                ValueInAnyRange(this.temperature, temperature) &&
-                ValueInAnyRange(this.precipitation, precipitation);
+                ValueInAnyRange(elevation, tile.Elevation) &&
+                ValueInAnyRange(temperature, tile.Temperature) &&
+                ValueInAnyRange(precipitation, tile.Precipitation);
         }
     }
 }

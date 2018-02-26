@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace WorldMapGen
@@ -37,6 +38,7 @@ namespace WorldMapGen
             GenerateInitialValues();
             AdjustRainfallForOceanDistance();
             AdjustOrographicRainfall();
+            SelectBiomes();
 
             currentMap = null;
         }
@@ -122,6 +124,44 @@ namespace WorldMapGen
         protected virtual void AdjustOrographicRainfall()
         {
 
+        }
+
+        // Set an appropriate tile type and its sprite for each tile
+        protected virtual void SelectBiomes()
+        {
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+
+                    // Find all valid tile types
+                    List<TileType> possibleTypes = new List<TileType>();
+                    foreach (TileType type in parameters.TileTypes)
+                    {
+                        if (type.ValuesInRanges(currentTile))
+                        {
+                            possibleTypes.Add(type);
+                        }
+                    }
+
+                    if (possibleTypes.Count > 0)
+                    {
+                        // Randomly select a valid tile type
+                        TileType selectedType = possibleTypes[
+                            Random.Range(0, possibleTypes.Count)];
+                        currentTile.Type = selectedType;
+                        currentTile.sprite = selectedType.Sprite;
+                    }
+                    else
+                    {
+                        // No valid tile type
+                        currentTile.Type = null;
+                        currentTile.sprite = parameters.InvalidSprite;
+                    }
+                }
+            }
         }
     }
 }
