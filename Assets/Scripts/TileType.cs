@@ -84,7 +84,7 @@ namespace WorldMapGen
 
         // If this type's elevation ranges include both positive and negative
         // values, return false
-        public bool ElevationIsValid()
+        public virtual bool ElevationIsValid()
         {
             bool positive = false;  // Is the highest max value positive?
             bool negative = false;  // Is the lowest min value negative?
@@ -111,7 +111,7 @@ namespace WorldMapGen
 
         // Return whether the given value is within any of the ranges in the
         // given array
-        protected bool ValueInAnyRange(Range[] ranges, float value)
+        protected virtual bool ValueInAnyRange(Range[] ranges, float value)
         {
             foreach (Range range in ranges)
             {
@@ -125,7 +125,7 @@ namespace WorldMapGen
 
         // Return whether the given values for elevation, temperature and
         // precipitation are within this type's ranges
-        public bool ValuesInRanges(
+        public virtual bool ValuesInRanges(
             float elevation, float temperature, float precipitation)
         {
             return 
