@@ -27,8 +27,8 @@ namespace WorldMapGen
         // Noise function offset
         protected Vector2 noiseOffset;
 
-        // Highest possible elevation
-        protected float maxElevation;
+        // Amount to scale generated elevation
+        protected float elevationScale;
 
         // Procedurally generate a map, storing it in the given tilemap
         public virtual void GenerateMap(Tilemap map)
@@ -70,27 +70,30 @@ namespace WorldMapGen
             noiseOffset = new Vector2(Random.Range(0.0f, noiseMaxOffset),
                                       Random.Range(0.0f, noiseMaxOffset));
 
-            // Maximum elevation is the highest elevation among all tile types
-            maxElevation = -Mathf.Infinity;
+            // Elevation scale based on highest elevation among all tile types
+            elevationScale = -Mathf.Infinity;
             foreach (TileType type in parameters.TileTypes)
             {
                 foreach (Range range in type.Elevation)
                 {
-                    if (range.Max > maxElevation)
+                    if (range.Max > elevationScale)
                     {
-                        maxElevation = range.Max;
+                        elevationScale = range.Max;
                     }
                 }
             }
+            // Also scale based on maximum value of unscaled heightmap
+            elevationScale /= (1.0f - parameters.OceanPercentage);
         }
 
         // Use noise to generate an elevation corresponding to the given
         // coordinates
         protected virtual float ElevationAtCoords(int x, int y)
         {
-            return Mathf.PerlinNoise(
-                x / noiseScale + noiseOffset.x,
-                y / noiseScale + noiseOffset.y) * maxElevation;
+            return (Mathf.PerlinNoise(
+                        x / noiseScale + noiseOffset.x,
+                        y / noiseScale + noiseOffset.y) -
+                    parameters.OceanPercentage) * elevationScale;
         }
 
         // Calculate temperature based on latitude for the given Y coordinate
