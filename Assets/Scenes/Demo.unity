@@ -255,7 +255,7 @@ MonoBehaviour:
     rotateWest: 0
     wrapX: 0
     wrapY: 0
-    noiseScale: 0
+    noiseScale: 0.01
     tileTypes:
     - name: 
       elevation:

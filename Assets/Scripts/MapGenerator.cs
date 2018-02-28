@@ -41,6 +41,7 @@ namespace WorldMapGen
             AdjustOrographicRainfall();
             SelectBiomes();
 
+            currentMap.RefreshAllTiles();
             currentMap = null;
         }
 
