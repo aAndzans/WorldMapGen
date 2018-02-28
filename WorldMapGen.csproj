@@ -286,6 +286,7 @@
     <Compile Include="Assets\Scripts\MapParameters.cs" />
     <Compile Include="Assets\Scripts\Tile.cs" />
     <Compile Include="Assets\Scripts\TileType.cs" />
+    <Compile Include="Assets\Scripts\WorldMapGenDemo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

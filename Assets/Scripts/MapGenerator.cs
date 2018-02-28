@@ -53,7 +53,7 @@ namespace WorldMapGen
             {
                 for (int j = 0; j < parameters.Width; j++)
                 {
-                    Tile newTile = new Tile();
+                    Tile newTile = ScriptableObject.CreateInstance<Tile>();
                     // Generate elevation
                     newTile.Elevation = ElevationAtCoords(j, i);
                     // Place the tile in the map
