@@ -33,6 +33,7 @@ namespace WorldMapGen
         // Procedurally generate a map, storing it in the given tilemap
         public virtual void GenerateMap(Tilemap map)
         {
+            map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
 
             GenerateInitialValues();

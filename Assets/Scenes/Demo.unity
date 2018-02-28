@@ -235,7 +235,7 @@ MonoBehaviour:
     width: 80
     height: 52
     tileScale: {x: 0, y: 0}
-    oceanPercentage: 0
+    oceanPercentage: 0.71
     rotateWest: 0
     wrapX: 0
     wrapY: 0
@@ -243,15 +243,36 @@ MonoBehaviour:
     tileTypes:
     - name: 
       elevation:
-      - min: 0
+      - min: -10000
         max: 0
-      temperature: []
-      precipitation: []
-      sprite: {fileID: 0}
+      temperature:
+      - min: -10000
+        max: 10000
+      precipitation:
+      - min: -10000
+        max: 10000
+      sprite: {fileID: 21300000, guid: 71be3ee862653ed479fd098c26464343, type: 3}
     - name: 
-      elevation: []
-      temperature: []
-      precipitation: []
+      elevation:
+      - min: 0
+        max: 7000
+      temperature:
+      - min: -10000
+        max: 10000
+      precipitation:
+      - min: -10000
+        max: 10000
+      sprite: {fileID: 21300000, guid: 073466a366a863e4ba15a40f32b045eb, type: 3}
+    - name: 
+      elevation:
+      - min: 7000
+        max: 8000
+      temperature:
+      - min: -10000
+        max: 10000
+      precipitation:
+      - min: -10000
+        max: 10000
       sprite: {fileID: 0}
     highPressureLatitude: 0
     lowPressureLatitude: 0
@@ -267,6 +288,7 @@ MonoBehaviour:
     saturationPressureExponentMultiplier: 0
     saturationPressureExponentDivisorTerm: 0
     moistureScaleHeightDivisor: 0
+    invalidSprite: {fileID: 21300000, guid: 33a5ab26c555c334c9d7b6ef2d3157dd, type: 3}
 --- !u!4 &585901999
 Transform:
   m_ObjectHideFlags: 0
