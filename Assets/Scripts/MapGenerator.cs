@@ -84,7 +84,7 @@ namespace WorldMapGen
             // Value subtracted from noise to achieve correct ocean coverage
             float oceanOffset =
                 sortedNoise[Mathf.FloorToInt(sortedNoise.Count *
-                                             parameters.OceanPercentage)];
+                                             parameters.OceanCoverage)];
 
             // Elevation scale based on highest elevation among all tile types
             float elevationScale = -Mathf.Infinity;

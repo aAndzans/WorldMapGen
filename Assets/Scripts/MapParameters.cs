@@ -52,13 +52,13 @@ namespace WorldMapGen
             set { tileScale = value; }
         }
 
-        // Approximate percentage of the world that is below sea level
+        // Approximate portion (0-1) of the world that is below sea level
         [SerializeField]
-        protected float oceanPercentage;
-        public float OceanPercentage
+        protected float oceanCoverage;
+        public float OceanCoverage
         {
-            get { return oceanPercentage; }
-            set { oceanPercentage = value; }
+            get { return oceanCoverage; }
+            set { oceanCoverage = value; }
         }
 
         // If true, the world rotates west (opposite the real Earth)
