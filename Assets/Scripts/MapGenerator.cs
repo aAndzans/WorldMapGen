@@ -22,58 +22,72 @@ namespace WorldMapGen
         // Map currently being generated
         protected Tilemap currentMap;
 
-        // Number of tiles corresponding to 1 unit in the noise function
-        protected float noiseScale;
-        // Noise function offset
-        protected Vector2 noiseOffset;
-
-        // Amount to scale generated elevation
-        protected float elevationScale;
-
         // Procedurally generate a map, storing it in the given tilemap
         public virtual void GenerateMap(Tilemap map)
         {
             map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
 
-            GenerateInitialValues();
-            AdjustRainfallForOceanDistance();
-            AdjustOrographicRainfall();
+            CreateTiles();
+            GenerateElevation();
             SelectBiomes();
 
             currentMap.RefreshAllTiles();
             currentMap = null;
         }
 
-        // Generate all tile properties that do not depend on other tiles
-        protected virtual void GenerateInitialValues()
+        // Create all tile objects in the map
+        protected virtual void CreateTiles()
         {
-            InitElevationGenerator();
-
             for (int i = 0; i < parameters.Height; i++)
             {
                 for (int j = 0; j < parameters.Width; j++)
                 {
-                    Tile newTile = ScriptableObject.CreateInstance<Tile>();
-                    // Generate elevation
-                    newTile.Elevation = ElevationAtCoords(j, i);
-                    // Place the tile in the map
-                    currentMap.SetTile(new Vector3Int(j, i, 0), newTile);
-                    Debug.Log(newTile.Elevation);
+                    currentMap.SetTile(
+                        new Vector3Int(j, i, 0),
+                        ScriptableObject.CreateInstance<Tile>());
                 }
             }
         }
 
-        // Initialise the variables used for generating elevation
-        protected virtual void InitElevationGenerator()
+        // Generate elevation for every tile
+        protected virtual void GenerateElevation()
         {
-            noiseScale = parameters.NoiseScale *
-                         Mathf.Max(parameters.Width, parameters.Height);
-            noiseOffset = new Vector2(Random.Range(0.0f, noiseMaxOffset),
-                                      Random.Range(0.0f, noiseMaxOffset));
+            float noiseScale = parameters.NoiseScale *
+                               Mathf.Max(parameters.Width, parameters.Height);
+            Vector2 noiseOffset =
+                new Vector2(Random.Range(0.0f, noiseMaxOffset),
+                            Random.Range(0.0f, noiseMaxOffset));
+
+            // Sorted list of the raw noise values for each tile
+            List<float> sortedNoise = new List<float>();
+
+            // Generate raw noise
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    currentTile.Elevation =
+                        Mathf.PerlinNoise(j / noiseScale + noiseOffset.x,
+                                          i / noiseScale + noiseOffset.y);
+
+                    // Add the value to the sorted list
+                    int sortedIndex =
+                        sortedNoise.BinarySearch(currentTile.Elevation);
+                    if (sortedIndex < 0) sortedIndex = ~sortedIndex;
+                    sortedNoise.Insert(sortedIndex, currentTile.Elevation);
+                }
+            }
+
+            // Value subtracted from noise to achieve correct ocean coverage
+            float oceanOffset =
+                sortedNoise[Mathf.FloorToInt(sortedNoise.Count *
+                                             parameters.OceanPercentage)];
 
             // Elevation scale based on highest elevation among all tile types
-            elevationScale = -Mathf.Infinity;
+            float elevationScale = -Mathf.Infinity;
             foreach (TileType type in parameters.TileTypes)
             {
                 foreach (Range range in type.Elevation)
@@ -85,17 +99,19 @@ namespace WorldMapGen
                 }
             }
             // Also scale based on maximum value of unscaled heightmap
-            elevationScale /= (1.0f - parameters.OceanPercentage);
-        }
+            elevationScale /= 1.0f - oceanOffset;
 
-        // Use noise to generate an elevation corresponding to the given
-        // coordinates
-        protected virtual float ElevationAtCoords(int x, int y)
-        {
-            return (Mathf.PerlinNoise(
-                        x / noiseScale + noiseOffset.x,
-                        y / noiseScale + noiseOffset.y) -
-                    parameters.OceanPercentage) * elevationScale;
+            // Offset and scale all elevations
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    currentTile.Elevation -= oceanOffset;
+                    currentTile.Elevation *= elevationScale;
+                }
+            }
         }
 
         // Calculate temperature based on latitude for the given Y coordinate
@@ -154,8 +170,9 @@ namespace WorldMapGen
                     if (possibleTypes.Count > 0)
                     {
                         // Randomly select a valid tile type
-                        TileType selectedType = possibleTypes[
-                            Random.Range(0, possibleTypes.Count)];
+                        TileType selectedType =
+                            possibleTypes[
+                                Random.Range(0, possibleTypes.Count)];
                         currentTile.Type = selectedType;
                         currentTile.sprite = selectedType.Sprite;
                     }

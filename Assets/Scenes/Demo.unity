@@ -248,18 +248,18 @@ MonoBehaviour:
   parameters:
     customSeed: 0
     seed: 0
-    width: 10
-    height: 10
+    width: 80
+    height: 52
     tileScale: {x: 0, y: 0}
     oceanPercentage: 0.71
     rotateWest: 0
     wrapX: 0
     wrapY: 0
-    noiseScale: 0.01
+    noiseScale: 0.2
     tileTypes:
     - name: 
       elevation:
-      - min: -10000
+      - min: -100000
         max: 0
       temperature:
       - min: -10000
@@ -282,14 +282,14 @@ MonoBehaviour:
     - name: 
       elevation:
       - min: 7000
-        max: 8000
+        max: 9000
       temperature:
       - min: -10000
         max: 10000
       precipitation:
       - min: -10000
         max: 10000
-      sprite: {fileID: 0}
+      sprite: {fileID: 21300000, guid: 63da84ca5a69fd64f858855aaad3dde4, type: 3}
     highPressureLatitude: 0
     lowPressureLatitude: 0
     equatorTemperature: 0
@@ -415,7 +415,7 @@ Grid:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1642572278}
   m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 0}
+  m_CellSize: {x: 0.32, y: 0.32, z: 0}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
