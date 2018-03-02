@@ -290,8 +290,8 @@ MonoBehaviour:
       - min: -10000
         max: 10000
       sprite: {fileID: 21300000, guid: 63da84ca5a69fd64f858855aaad3dde4, type: 3}
-    highPressureLatitude: 0
-    lowPressureLatitude: 0
+    highPressureLatitude: 30
+    lowPressureLatitude: 60
     equatorTemperature: 0
     poleTemperature: 0
     temperatureLapseRate: 0

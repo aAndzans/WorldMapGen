@@ -7,6 +7,13 @@ namespace WorldMapGen
     // Class that procedurally generates a map
     public class MapGenerator : MonoBehaviour
     {
+        // Possible directions from which the wind can blow
+        protected enum WindDirection
+        {
+            West,
+            East
+        }
+
         // Maximum X and Y offset for heightmap noise
         protected const float noiseMaxOffset = 1000.0f;
 
@@ -48,6 +55,13 @@ namespace WorldMapGen
                         ScriptableObject.CreateInstance<Tile>());
                 }
             }
+        }
+
+        // Return the latitude in radians corresponding to the given Y
+        // coordinate
+        protected virtual float LatitudeAtY(int y)
+        {
+            return ((float)y / parameters.Height - 0.5f) * Mathf.PI;
         }
 
         // Generate elevation for every tile
@@ -112,6 +126,40 @@ namespace WorldMapGen
                     currentTile.Elevation *= elevationScale;
                 }
             }
+        }
+
+        // Return the wind direction at the given Y coordinate
+        protected virtual WindDirection WindDirectionAtY(int y)
+        {
+            return WindDirectionAtLatitude(LatitudeAtY(y));
+        }
+
+        // Return the wind direction at the given latitude
+        protected virtual WindDirection WindDirectionAtLatitude(float latitude)
+        {
+            float absLatitude = Mathf.Abs(latitude);
+
+            if (absLatitude > Mathf.Deg2Rad * parameters.LowPressureLatitude ||
+                absLatitude < Mathf.Deg2Rad * parameters.HighPressureLatitude)
+            {
+                if (parameters.RotateWest)
+                {
+                    // Opposite direction of Earth
+                    return WindDirection.West;
+                }
+                else
+                {
+                    // Polar easterlies or trade winds
+                    return WindDirection.East;
+                }
+            }
+            if (parameters.RotateWest)
+            {
+                // Opposite direction of Earth
+                return WindDirection.East;
+            }
+            // Westerlies
+            return WindDirection.West;
         }
 
         // Calculate temperature based on latitude for the given Y coordinate
