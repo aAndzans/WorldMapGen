@@ -251,7 +251,7 @@ MonoBehaviour:
     width: 80
     height: 52
     tileScale: {x: 0, y: 0}
-    oceanPercentage: 0.71
+    oceanCoverage: 0.71
     rotateWest: 0
     wrapX: 0
     wrapY: 0
@@ -281,7 +281,7 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: 073466a366a863e4ba15a40f32b045eb, type: 3}
     - name: 
       elevation:
-      - min: 7000
+      - min: 5000
         max: 9000
       temperature:
       - min: -10000
