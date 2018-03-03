@@ -273,7 +273,7 @@ MonoBehaviour:
       - min: 0
         max: 7000
       temperature:
-      - min: -10000
+      - min: -10
         max: 10000
       precipitation:
       - min: -10000
@@ -290,11 +290,22 @@ MonoBehaviour:
       - min: -10000
         max: 10000
       sprite: {fileID: 21300000, guid: 63da84ca5a69fd64f858855aaad3dde4, type: 3}
+    - name: 
+      elevation:
+      - min: 0
+        max: 7000
+      temperature:
+      - min: -10000
+        max: -5
+      precipitation:
+      - min: -10000
+        max: 10000
+      sprite: {fileID: 21300000, guid: c865663ccf4c13347bb69c2e047fc41f, type: 3}
     highPressureLatitude: 30
     lowPressureLatitude: 60
-    equatorTemperature: 0
-    poleTemperature: 0
-    temperatureLapseRate: 0
+    equatorTemperature: 30
+    poleTemperature: -20
+    temperatureLapseRate: 0.0065
     equatorRainfall: 0
     equatorRainfallEvenness: 0
     midLatitudeRainfall: 0
