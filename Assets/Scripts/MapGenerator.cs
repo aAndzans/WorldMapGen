@@ -37,6 +37,7 @@ namespace WorldMapGen
 
             CreateTiles();
             GenerateElevation();
+            GenerateTemperature();
             SelectBiomes();
 
             currentMap.RefreshAllTiles();
@@ -124,6 +125,25 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
                     currentTile.Elevation -= oceanOffset;
                     currentTile.Elevation *= elevationScale;
+                }
+            }
+        }
+
+        // Generate temperature for every tile
+        protected virtual void GenerateTemperature()
+        {
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                // Temperature not adjusted for elevation
+                float latitudeTemperature = TemperatureAtY(i);
+
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    currentTile.Temperature =
+                        TemperatureAtElevation(latitudeTemperature,
+                                               currentTile.Elevation);
                 }
             }
         }
