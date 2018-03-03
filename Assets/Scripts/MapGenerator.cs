@@ -165,14 +165,24 @@ namespace WorldMapGen
         // Calculate temperature based on latitude for the given Y coordinate
         protected virtual float TemperatureAtY(int y)
         {
-            return 0.0f;
+            return TemperatureAtLatitude(LatitudeAtY(y));
+        }
+
+        // Calculate temperature based on latitude
+        protected virtual float TemperatureAtLatitude(float latitude)
+        {
+            float sinLatitude = Mathf.Sin(latitude);
+            return
+                parameters.EquatorTemperature -
+                (parameters.EquatorTemperature - parameters.PoleTemperature) *
+                sinLatitude * sinLatitude;
         }
 
         // Adjust the given temperature based on the given elevation
         protected virtual float TemperatureAtElevation(
             float temperature, float elevation)
         {
-            return 0.0f;
+            return temperature - elevation * parameters.TemperatureLapseRate;
         }
 
         // Calculate precipitation based on latitude for the given Y coordinate
