@@ -208,7 +208,28 @@ namespace WorldMapGen
         // Calculate precipitation based on latitude for the given Y coordinate
         protected virtual float RainfallAtY(int y)
         {
-            return 0.0f;
+            return RainfallAtLatitude(LatitudeAtY(y));
+        }
+
+        // Calculate precipitation based on latitude
+        protected virtual float RainfallAtLatitude(float latitude)
+        {
+            // Terms to be squared
+            float equatorSquareBase =
+                latitude / parameters.EquatorRainfallEvenness;
+            float midLatitudeSquareBase1 =
+                (latitude - parameters.LowPressureLatitude) /
+                parameters.MidLatitudeRainfallEvenness;
+            float midLatitudeSquareBase2 =
+                (latitude + parameters.LowPressureLatitude) /
+                parameters.MidLatitudeRainfallEvenness;
+
+            return parameters.MidLatitudeRainfall /
+                   (1.0f + midLatitudeSquareBase1 * midLatitudeSquareBase1) +
+                   parameters.EquatorRainfall /
+                   (1.0f + equatorSquareBase * equatorSquareBase) +
+                   parameters.MidLatitudeRainfall /
+                   (1.0f + midLatitudeSquareBase2 * midLatitudeSquareBase2);
         }
 
         // Reduce the precipitation at all land tiles based on their distance
