@@ -38,6 +38,7 @@ namespace WorldMapGen
             CreateTiles();
             GenerateElevation();
             GenerateTemperature();
+            GenerateRainfall();
             SelectBiomes();
 
             currentMap.RefreshAllTiles();
@@ -144,6 +145,22 @@ namespace WorldMapGen
                     currentTile.Temperature =
                         TemperatureAtElevation(latitudeTemperature,
                                                currentTile.Elevation);
+                }
+            }
+        }
+
+        // Generate precipitation for every tile
+        protected virtual void GenerateRainfall()
+        {
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                float latitudeRainfall = RainfallAtY(i);
+
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    currentTile.Precipitation = latitudeRainfall;
                 }
             }
         }
