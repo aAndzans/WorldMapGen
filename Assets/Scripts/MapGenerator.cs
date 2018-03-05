@@ -29,11 +29,15 @@ namespace WorldMapGen
         // Map currently being generated
         protected Tilemap currentMap;
 
+        // Coordinates of every ocean tile in km
+        protected List<Vector2> oceanCoords;
+
         // Procedurally generate a map, storing it in the given tilemap
         public virtual void GenerateMap(Tilemap map)
         {
             map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
+            oceanCoords = new List<Vector2>();
 
             CreateTiles();
             GenerateElevation();
@@ -43,6 +47,7 @@ namespace WorldMapGen
 
             currentMap.RefreshAllTiles();
             currentMap = null;
+            oceanCoords.Clear();
         }
 
         // Create all tile objects in the map
@@ -64,6 +69,13 @@ namespace WorldMapGen
         protected virtual float LatitudeAtY(int y)
         {
             return ((float)y / parameters.Height - 0.5f) * Mathf.PI;
+        }
+
+        // Scale the given coordinates to km
+        protected virtual Vector2 ScaleCoords(int x, int y)
+        {
+            return new Vector2(x * parameters.TileScale.x,
+                               y * parameters.TileScale.y);
         }
 
         // Generate elevation for every tile
@@ -126,6 +138,12 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
                     currentTile.Elevation -= oceanOffset;
                     currentTile.Elevation *= elevationScale;
+
+                    // Store coordinates of all ocean tiles
+                    if (currentTile.Elevation <= 0.0f)
+                    {
+                        oceanCoords.Add(ScaleCoords(j, i));
+                    }
                 }
             }
         }
@@ -161,6 +179,14 @@ namespace WorldMapGen
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
                     currentTile.Precipitation = latitudeRainfall;
+
+                    // For land tiles, reduce precipitation based on their
+                    // distance to the ocean
+                    if (currentTile.Elevation > 0.0f)
+                    {
+                        currentTile.Precipitation /=
+                            RainfallOceanDistanceRatio(j, i);
+                    }
                 }
             }
         }
@@ -249,11 +275,25 @@ namespace WorldMapGen
                    (1.0f + midLatitudeSquareBase2 * midLatitudeSquareBase2);
         }
 
-        // Reduce the precipitation at all land tiles based on their distance
-        // to the nearest ocean tile
-        protected virtual void AdjustRainfallForOceanDistance()
+        // Return the ratio by which to divide a tile's precipitation based on
+        // its distance to the nearest ocean tile
+        protected virtual float RainfallOceanDistanceRatio(int x, int y)
         {
+            float shortestSqDist = Mathf.Infinity;
+            Vector2 currentTile = ScaleCoords(x, y);
 
+            // Find the square distance to the nearest ocean tile
+            foreach (Vector2 oceanTile in oceanCoords)
+            {
+                float sqDist = (oceanTile - currentTile).sqrMagnitude;
+                if (sqDist < shortestSqDist)
+                {
+                    shortestSqDist = sqDist;
+                }
+            }
+
+            return Mathf.Exp(Mathf.Sqrt(shortestSqDist) /
+                             parameters.RainfallOceanEFoldingDistance);
         }
 
         // Adjust the precipitation at all land tiles based on the effects of

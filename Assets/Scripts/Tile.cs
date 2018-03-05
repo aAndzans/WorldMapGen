@@ -14,8 +14,5 @@
 
         // Annual average precipitation in mm
         public float Precipitation { get; set; }
-
-        // Distance to nearest ocean tile in km
-        public float OceanDistance { get; set; }
     }
 }
