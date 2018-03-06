@@ -215,21 +215,21 @@ namespace WorldMapGen
         // Multiplier used in the exponent in the saturation vapour pressure
         // formula
         [SerializeField]
-        protected float saturationPressureExponentMultiplier;
-        public float SaturationPressureExponentMultiplier
+        protected float saturationPressureConst1;
+        public float SaturationPressureConst1
         {
-            get { return saturationPressureExponentMultiplier; }
-            set { saturationPressureExponentMultiplier = value; }
+            get { return saturationPressureConst1; }
+            set { saturationPressureConst1 = value; }
         }
 
         // Constant (in °C) added to the divisor in the exponent in the
         // saturation vapour pressure formula
         [SerializeField]
-        protected float saturationPressureExponentDivisorTerm;
-        public float SaturationPressureExponentDivisorTerm
+        protected float saturationPressureConst2;
+        public float SaturationPressureConst2
         {
-            get { return saturationPressureExponentDivisorTerm; }
-            set { saturationPressureExponentDivisorTerm = value; }
+            get { return saturationPressureConst2; }
+            set { saturationPressureConst2 = value; }
         }
 
         // Divisor (in K) used in the moisture scale height formula

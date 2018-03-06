@@ -173,6 +173,8 @@ namespace WorldMapGen
             for (int i = 0; i < parameters.Height; i++)
             {
                 float latitudeRainfall = RainfallAtY(i);
+                float seaLevelTemperature = TemperatureAtY(i);
+                float prevElevation = 0.0f;
 
                 for (int j = 0; j < parameters.Width; j++)
                 {
@@ -187,6 +189,25 @@ namespace WorldMapGen
                         currentTile.Precipitation /=
                             RainfallOceanDistanceRatio(j, i);
                     }
+
+                    if (j > 0)
+                    {
+                        currentTile.Precipitation +=
+                            parameters.CondensationRateMultiplier *
+                            Mathf.Exp(
+                                parameters.SaturationPressureConst1 *
+                                seaLevelTemperature / (
+                                    parameters.SaturationPressureConst2 +
+                                    seaLevelTemperature) -
+                                currentTile.Elevation *
+                                parameters.MoistureScaleHeightDivisor *
+                                parameters.TemperatureLapseRate /
+                                (currentTile.Temperature *
+                                currentTile.Temperature)) *
+                            (currentTile.Elevation - prevElevation) /
+                            parameters.TileScale.x;
+                    }
+                    prevElevation = currentTile.Elevation;
                 }
             }
         }
