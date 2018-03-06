@@ -172,40 +172,40 @@ namespace WorldMapGen
         {
             for (int i = 0; i < parameters.Height; i++)
             {
+                // Starting precipitation for this row
                 float latitudeRainfall = RainfallAtY(i);
+                // Temperature at sea level for this row
                 float seaLevelTemperature = TemperatureAtY(i);
+                // Elevation of the previous tile in this row
                 float prevElevation = 0.0f;
+                // Wind direction in this row
+                WindDirection windDirection = WindDirectionAtY(i);
 
                 for (int j = 0; j < parameters.Width; j++)
                 {
+                    // Iterate left to right or right to left depending on wind
+                    // direction
+                    int x = windDirection == WindDirection.West ?
+                        j : parameters.Width - j - 1;
+
                     Tile currentTile =
-                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                        (Tile)currentMap.GetTile(new Vector3Int(x, i, 0));
                     currentTile.Precipitation = latitudeRainfall;
 
-                    // For land tiles, reduce precipitation based on their
-                    // distance to the ocean
+                    // For land tiles
                     if (currentTile.Elevation > 0.0f)
                     {
+                        // Reduce precipitation based on distance to the ocean
                         currentTile.Precipitation /=
-                            RainfallOceanDistanceRatio(j, i);
-                    }
+                            RainfallOceanDistanceRatio(x, i);
 
-                    if (j > 0)
-                    {
-                        currentTile.Precipitation +=
-                            parameters.CondensationRateMultiplier *
-                            Mathf.Exp(
-                                parameters.SaturationPressureConst1 *
-                                seaLevelTemperature / (
-                                    parameters.SaturationPressureConst2 +
-                                    seaLevelTemperature) -
-                                currentTile.Elevation *
-                                parameters.MoistureScaleHeightDivisor *
-                                parameters.TemperatureLapseRate /
-                                (currentTile.Temperature *
-                                currentTile.Temperature)) *
-                            (currentTile.Elevation - prevElevation) /
-                            parameters.TileScale.x;
+                        // Add the effect of orographic rainfall
+                        if (j > 0)
+                        {
+                            currentTile.Precipitation += OrographicRainfall(
+                                currentTile, prevElevation,
+                                seaLevelTemperature);
+                        }
                     }
                     prevElevation = currentTile.Elevation;
                 }
@@ -317,11 +317,22 @@ namespace WorldMapGen
                              parameters.RainfallOceanEFoldingDistance);
         }
 
-        // Adjust the precipitation at all land tiles based on the effects of
-        // wind and elevation
-        protected virtual void AdjustOrographicRainfall()
+        // Return the change in precipitation due to the effects of wind and
+        // elevation
+        protected virtual float OrographicRainfall(
+            Tile tile, float prevElevation, float seaLevelTemperature)
         {
-
+            return
+                parameters.CondensationRateMultiplier *
+                Mathf.Exp(
+                    parameters.SaturationPressureConst1 *
+                    seaLevelTemperature /
+                        (parameters.SaturationPressureConst2 +
+                        seaLevelTemperature) - tile.Elevation *
+                    parameters.MoistureScaleHeightDivisor *
+                    parameters.TemperatureLapseRate /
+                    (tile.Temperature * tile.Temperature)) *
+                (tile.Elevation - prevElevation) / parameters.TileScale.x;
         }
 
         // Set an appropriate tile type and its sprite for each tile
