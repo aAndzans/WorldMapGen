@@ -196,22 +196,31 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(x, i, 0));
                     currentTile.Precipitation = latitudeRainfall;
 
+                    float elevation;
+
                     // For land tiles
                     if (currentTile.Elevation > 0.0f)
                     {
                         // Reduce precipitation based on distance to the ocean
                         currentTile.Precipitation /=
                             RainfallOceanDistanceRatio(x, i);
-
-                        // Add the effect of orographic rainfall
-                        if (j > 0)
-                        {
-                            currentTile.Precipitation += OrographicRainfall(
-                                currentTile, prevElevation,
-                                seaLevelTemperature);
-                        }
+                            
+                        elevation = currentTile.Elevation;
                     }
-                    prevElevation = currentTile.Elevation;
+                    else
+                    {
+                        elevation = 0.0f;
+                    }
+
+                    // Add the effect of orographic rainfall
+                    if (j > 0)
+                    {
+                        currentTile.Precipitation += OrographicRainfall(
+                            elevation, prevElevation,
+                            currentTile.Temperature, seaLevelTemperature);
+                    }
+
+                    prevElevation = elevation;
                 }
             }
         }
@@ -324,10 +333,10 @@ namespace WorldMapGen
         // Return the change in precipitation due to the effects of wind and
         // elevation
         protected virtual float OrographicRainfall(
-            Tile tile, float prevElevation, float seaLevelTemperature)
+            float elevation, float prevElevation,
+            float temperature, float seaLevelTemperature)
         {
-            // The tile's temperature in K
-            float kelvin = tile.Temperature + celsiusToKelvin;
+            temperature += celsiusToKelvin;
 
             return
                 parameters.CondensationRateMultiplier *
@@ -335,10 +344,11 @@ namespace WorldMapGen
                     parameters.SaturationPressureConst1 *
                     seaLevelTemperature /
                         (parameters.SaturationPressureConst2 +
-                        seaLevelTemperature) - tile.Elevation *
-                    parameters.MoistureScaleHeightDivisor *
-                    parameters.TemperatureLapseRate / (kelvin * kelvin)) *
-                (tile.Elevation - prevElevation) /
+                         seaLevelTemperature) -
+                    elevation * parameters.MoistureScaleHeightDivisor *
+                    parameters.TemperatureLapseRate /
+                    (temperature * temperature)) *
+                (elevation - prevElevation) /
                 (parameters.TileScale.x * kmToM);
         }
 
