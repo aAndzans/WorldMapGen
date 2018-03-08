@@ -271,13 +271,13 @@ MonoBehaviour:
     - name: 
       elevation:
       - min: 0
-        max: 7000
+        max: 5000
       temperature:
       - min: -10
         max: 10000
       precipitation:
-      - min: -10000
-        max: 10000
+      - min: 100
+        max: 1250
       sprite: {fileID: 21300000, guid: 073466a366a863e4ba15a40f32b045eb, type: 3}
     - name: 
       elevation:
@@ -293,14 +293,36 @@ MonoBehaviour:
     - name: 
       elevation:
       - min: 0
-        max: 7000
+        max: 5000
       temperature:
       - min: -10000
         max: -5
       precipitation:
+      - min: 100
+        max: 1250
+      sprite: {fileID: 21300000, guid: c865663ccf4c13347bb69c2e047fc41f, type: 3}
+    - name: 
+      elevation:
+      - min: 0
+        max: 5000
+      temperature:
       - min: -10000
         max: 10000
-      sprite: {fileID: 21300000, guid: c865663ccf4c13347bb69c2e047fc41f, type: 3}
+      precipitation:
+      - min: 1250
+        max: 10000
+      sprite: {fileID: 21300000, guid: 9402715d730fa0541bb0e2b4ad0b3900, type: 3}
+    - name: 
+      elevation:
+      - min: 0
+        max: 5000
+      temperature:
+      - min: -10000
+        max: 10000
+      precipitation:
+      - min: -10000
+        max: 100
+      sprite: {fileID: 21300000, guid: 2b2938e4f0b02794682c15fe2c8b2f3d, type: 3}
     highPressureLatitude: 30
     lowPressureLatitude: 60
     equatorTemperature: 30
@@ -310,8 +332,8 @@ MonoBehaviour:
     equatorRainfallEvenness: 0.1
     midLatitudeRainfall: 1000
     midLatitudeRainfallEvenness: 0.15
-    rainfallOceanEFoldingDistance: 600
-    condensationRateMultiplier: 100
+    rainfallOceanEFoldingDistance: 2000
+    condensationRateMultiplier: 50000
     saturationPressureConst1: 17.67
     saturationPressureConst2: 243.5
     moistureScaleHeightDivisor: 5385

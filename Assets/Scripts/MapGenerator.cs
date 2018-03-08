@@ -196,16 +196,12 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(x, i, 0));
                     currentTile.Precipitation = latitudeRainfall;
 
-                    Debug.Log(i + " " + j);
-                    Debug.Log(currentTile.Precipitation);
-
                     // For land tiles
                     if (currentTile.Elevation > 0.0f)
                     {
                         // Reduce precipitation based on distance to the ocean
                         currentTile.Precipitation /=
                             RainfallOceanDistanceRatio(x, i);
-                        Debug.Log(currentTile.Precipitation);
 
                         // Add the effect of orographic rainfall
                         if (j > 0)
@@ -213,7 +209,6 @@ namespace WorldMapGen
                             currentTile.Precipitation += OrographicRainfall(
                                 currentTile, prevElevation,
                                 seaLevelTemperature);
-                            Debug.Log(currentTile.Precipitation);
                         }
                     }
                     prevElevation = currentTile.Elevation;
@@ -296,11 +291,6 @@ namespace WorldMapGen
             float midLatitudeSquareBase2 =
                 (latitude + parameters.LowPressureLatitude * Mathf.Deg2Rad) /
                 parameters.MidLatitudeRainfallEvenness;
-
-            Debug.Log(latitude);
-            Debug.Log(parameters.MidLatitudeRainfall / (1.0f + midLatitudeSquareBase1 * midLatitudeSquareBase1));
-            Debug.Log(parameters.EquatorRainfall / (1.0f + equatorSquareBase * equatorSquareBase));
-            Debug.Log(parameters.MidLatitudeRainfall / (1.0f + midLatitudeSquareBase2 * midLatitudeSquareBase2));
 
             return parameters.MidLatitudeRainfall /
                    (1.0f + midLatitudeSquareBase1 * midLatitudeSquareBase1) +
