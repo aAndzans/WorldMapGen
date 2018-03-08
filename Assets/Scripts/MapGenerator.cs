@@ -16,6 +16,10 @@ namespace WorldMapGen
 
         // Maximum X and Y offset for heightmap noise
         protected const float noiseMaxOffset = 1000.0f;
+        // Difference between temperatures in °C and K
+        protected const float celsiusToKelvin = 273.15f;
+        // Number of metres in a kilometre
+        protected const float kmToM = 1000.0f;
 
         // User-specified parameters for map generation
         [SerializeField]
@@ -192,12 +196,16 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(x, i, 0));
                     currentTile.Precipitation = latitudeRainfall;
 
+                    Debug.Log(i + " " + j);
+                    Debug.Log(currentTile.Precipitation);
+
                     // For land tiles
                     if (currentTile.Elevation > 0.0f)
                     {
                         // Reduce precipitation based on distance to the ocean
                         currentTile.Precipitation /=
                             RainfallOceanDistanceRatio(x, i);
+                        Debug.Log(currentTile.Precipitation);
 
                         // Add the effect of orographic rainfall
                         if (j > 0)
@@ -205,6 +213,7 @@ namespace WorldMapGen
                             currentTile.Precipitation += OrographicRainfall(
                                 currentTile, prevElevation,
                                 seaLevelTemperature);
+                            Debug.Log(currentTile.Precipitation);
                         }
                     }
                     prevElevation = currentTile.Elevation;
@@ -282,11 +291,16 @@ namespace WorldMapGen
             float equatorSquareBase =
                 latitude / parameters.EquatorRainfallEvenness;
             float midLatitudeSquareBase1 =
-                (latitude - parameters.LowPressureLatitude) /
+                (latitude - parameters.LowPressureLatitude * Mathf.Deg2Rad) /
                 parameters.MidLatitudeRainfallEvenness;
             float midLatitudeSquareBase2 =
-                (latitude + parameters.LowPressureLatitude) /
+                (latitude + parameters.LowPressureLatitude * Mathf.Deg2Rad) /
                 parameters.MidLatitudeRainfallEvenness;
+
+            Debug.Log(latitude);
+            Debug.Log(parameters.MidLatitudeRainfall / (1.0f + midLatitudeSquareBase1 * midLatitudeSquareBase1));
+            Debug.Log(parameters.EquatorRainfall / (1.0f + equatorSquareBase * equatorSquareBase));
+            Debug.Log(parameters.MidLatitudeRainfall / (1.0f + midLatitudeSquareBase2 * midLatitudeSquareBase2));
 
             return parameters.MidLatitudeRainfall /
                    (1.0f + midLatitudeSquareBase1 * midLatitudeSquareBase1) +
@@ -322,6 +336,9 @@ namespace WorldMapGen
         protected virtual float OrographicRainfall(
             Tile tile, float prevElevation, float seaLevelTemperature)
         {
+            // The tile's temperature in K
+            float kelvin = tile.Temperature + celsiusToKelvin;
+
             return
                 parameters.CondensationRateMultiplier *
                 Mathf.Exp(
@@ -330,9 +347,9 @@ namespace WorldMapGen
                         (parameters.SaturationPressureConst2 +
                         seaLevelTemperature) - tile.Elevation *
                     parameters.MoistureScaleHeightDivisor *
-                    parameters.TemperatureLapseRate /
-                    (tile.Temperature * tile.Temperature)) *
-                (tile.Elevation - prevElevation) / parameters.TileScale.x;
+                    parameters.TemperatureLapseRate / (kelvin * kelvin)) *
+                (tile.Elevation - prevElevation) /
+                (parameters.TileScale.x * kmToM);
         }
 
         // Set an appropriate tile type and its sprite for each tile

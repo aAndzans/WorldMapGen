@@ -250,7 +250,7 @@ MonoBehaviour:
     seed: 0
     width: 80
     height: 52
-    tileScale: {x: 0, y: 0}
+    tileScale: {x: 500, y: 500}
     oceanCoverage: 0.71
     rotateWest: 0
     wrapX: 0
@@ -306,15 +306,15 @@ MonoBehaviour:
     equatorTemperature: 30
     poleTemperature: -20
     temperatureLapseRate: 0.0065
-    equatorRainfall: 0
-    equatorRainfallEvenness: 0
-    midLatitudeRainfall: 0
-    midLatitudeRainfallEvenness: 0
-    rainfallOceanEFoldingDistance: 0
-    condensationRateMultiplier: 0
-    saturationPressureExponentMultiplier: 0
-    saturationPressureExponentDivisorTerm: 0
-    moistureScaleHeightDivisor: 0
+    equatorRainfall: 3000
+    equatorRainfallEvenness: 0.1
+    midLatitudeRainfall: 1000
+    midLatitudeRainfallEvenness: 0.15
+    rainfallOceanEFoldingDistance: 600
+    condensationRateMultiplier: 100
+    saturationPressureConst1: 17.67
+    saturationPressureConst2: 243.5
+    moistureScaleHeightDivisor: 5385
     invalidSprite: {fileID: 21300000, guid: 33a5ab26c555c334c9d7b6ef2d3157dd, type: 3}
 --- !u!483693784 &502862085
 TilemapRenderer:
