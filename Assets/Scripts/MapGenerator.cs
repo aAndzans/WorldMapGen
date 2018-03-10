@@ -101,9 +101,9 @@ namespace WorldMapGen
                 {
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
-                    currentTile.Elevation =
+                    currentTile.Elevation = Mathf.Clamp01(
                         Mathf.PerlinNoise(j / noiseScale + noiseOffset.x,
-                                          i / noiseScale + noiseOffset.y);
+                                          i / noiseScale + noiseOffset.y));
 
                     // Add the value to the sorted list
                     int sortedIndex =
