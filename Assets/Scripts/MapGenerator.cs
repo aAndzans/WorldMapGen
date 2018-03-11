@@ -164,9 +164,17 @@ namespace WorldMapGen
                 {
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
-                    currentTile.Temperature =
-                        TemperatureAtElevation(latitudeTemperature,
-                                               currentTile.Elevation);
+                    if (currentTile.Elevation > 0.0f)
+                    {
+                        // For land tiles, adjust temperature for elevation
+                        currentTile.Temperature =
+                            TemperatureAtElevation(latitudeTemperature,
+                                                   currentTile.Elevation);
+                    }
+                    else
+                    {
+                        currentTile.Temperature = latitudeTemperature;
+                    }
                 }
             }
         }
