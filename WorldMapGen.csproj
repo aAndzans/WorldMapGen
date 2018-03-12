@@ -284,6 +284,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\MapParameters.cs" />
+    <Compile Include="Assets\Scripts\SimplexNoise.cs" />
     <Compile Include="Assets\Scripts\Tile.cs" />
     <Compile Include="Assets\Scripts\TileType.cs" />
     <Compile Include="Assets\Scripts\WorldMapGenDemo.cs" />
