@@ -248,14 +248,14 @@ MonoBehaviour:
   parameters:
     customSeed: 0
     seed: 0
-    width: 80
-    height: 52
-    tileScale: {x: 500, y: 500}
+    width: 200
+    height: 130
+    tileScale: {x: 200, y: 200}
     oceanCoverage: 0.71
     rotateWest: 0
     wrapX: 0
     wrapY: 0
-    noiseScale: 0.2
+    noiseScale: 0.3
     tileTypes:
     - name: Ocean
       elevation:
@@ -296,7 +296,7 @@ MonoBehaviour:
         max: 4000
       temperature:
       - min: -10000
-        max: -5
+        max: -10
       precipitation:
       - min: -10000
         max: 10000
@@ -307,7 +307,7 @@ MonoBehaviour:
         max: 6000
       temperature:
       - min: -10000
-        max: -5
+        max: -10
       precipitation:
       - min: -10000
         max: 10000
@@ -317,22 +317,22 @@ MonoBehaviour:
       - min: 0
         max: 4000
       temperature:
-      - min: -20
+      - min: -15
         max: 5
       precipitation:
       - min: -10000
-        max: 150
+        max: 200
       sprite: {fileID: 21300000, guid: 33476921762de294f862e037e2461649, type: 3}
     - name: Tundra Hill
       elevation:
       - min: 3000
         max: 6000
       temperature:
-      - min: -20
+      - min: -15
         max: 5
       precipitation:
       - min: -10000
-        max: 150
+        max: 200
       sprite: {fileID: 21300000, guid: 1ca5e59e689783e45be8afc3226eb7b2, type: 3}
     - name: Grass
       elevation:
@@ -486,7 +486,7 @@ MonoBehaviour:
     equatorRainfallEvenness: 0.1
     midLatitudeRainfall: 1000
     midLatitudeRainfallEvenness: 0.15
-    rainfallOceanEFoldingDistance: 2000
+    rainfallOceanEFoldingDistance: 800
     condensationRateMultiplier: 50000
     saturationPressureConst1: 17.67
     saturationPressureConst2: 243.5
