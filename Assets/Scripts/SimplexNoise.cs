@@ -3,6 +3,8 @@
 namespace WorldMapGen
 {
     // Class containing 2D Simplex noise function
+    // This code is based on Stefan Gustavson's Java implementation:
+    // http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
     public static class SimplexNoise
     {
         // Gradient array for 2D and 3D noise
