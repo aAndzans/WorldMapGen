@@ -88,11 +88,26 @@ namespace WorldMapGen
             unskew2D = (3.0f - Mathf.Sqrt(3.0f)) / 6.0f;
         }
 
-        // Return the dot product between the vector at the given index in
-        // grad3 and the given values
+        // Return the dot product between (x,y) of the vector at the given
+        // index in grad3 and the given values
         private static float Dot(int g, float x, float y)
         {
             return grad3[g, 0] * x + grad3[g, 1] * y;
+        }
+
+        // Return the dot product between the vector at the given index in
+        // grad3 and the given values
+        private static float Dot(int g, float x, float y, float z)
+        {
+            return grad3[g, 0] * x + grad3[g, 1] * y + grad3[g, 2] * z;
+        }
+
+        // Return the dot product between the vector at the given index in
+        // grad4 and the given values
+        private static double Dot(int g, float x, float y, float z, float w)
+        {
+            return grad4[g, 0] * x + grad4[g, 1] * y + grad4[g, 2] * z +
+                grad4[g, 3] * w;
         }
 
         // 2D simplex noise
