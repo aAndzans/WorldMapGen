@@ -88,9 +88,11 @@ namespace WorldMapGen
             // Noise scale adjusted for each dimension
             Vector2 noiseScale = new Vector2(
                 DimensionNoiseScale(
-                    parameters.WrapX, parameters.Width, parameters.Height),
+                    parameters.WrapX, parameters.Width, parameters.Height,
+                    parameters.TileScale.x, parameters.TileScale.y),
                 DimensionNoiseScale(
-                    parameters.WrapY, parameters.Height, parameters.Width));
+                    parameters.WrapY, parameters.Height, parameters.Width,
+                    parameters.TileScale.y, parameters.TileScale.x));
 
             // Offsets used to randomise noise
             Vector4 noiseOffset =
@@ -193,31 +195,47 @@ namespace WorldMapGen
         // dimension: number of tiles in this dimension
         // otherDimension: number of tiles in the other dimension
         protected virtual float DimensionNoiseScale(
-            bool wrap, int dimension, int otherDimension)
+            bool wrap, int dimension, int otherDimension,
+            float dimensionTileScale, float otherDimensionTileScale)
         {
             // The number of noise function units covered by one tile in this
             // dimension should be 1/(noise scale parameter*N), where N is the
             // number of tiles in the longer dimension
+            // In the shorter dimension, the above value should also be
+            // multiplied by the ratio of the tile scale in this dimension vs
+            // the other dimension
 
             float scale = 1.0f / parameters.NoiseScale;
+
+            // Map dimensions in km
+            float scaledDimension = dimension * dimensionTileScale;
+            float scaledOtherDimension =
+                otherDimension * otherDimensionTileScale;
 
             if (wrap)
             {
                 // In a wrapping dimension, one tile covers 2*pi/dimension
                 // unscaled noise function units
                 scale /= 2.0f * Mathf.PI;
-                if (otherDimension > dimension)
+                if (scaledOtherDimension > scaledDimension)
                 {
-                    scale *= dimension;
-                    scale /= otherDimension;
+                    scale *= scaledDimension;
+                    scale /= scaledOtherDimension;
                 }
             }
             else
             {
-
                 // In a non-wrapping dimension, one tile covers one unscaled
                 // noise function unit
-                scale /= Mathf.Max(dimension, otherDimension);
+                if (scaledDimension >= scaledOtherDimension)
+                {
+                    scale /= dimension;
+                }
+                else
+                {
+                    scale *= dimensionTileScale;
+                    scale /= scaledOtherDimension;
+                }
             }
 
             return scale;
