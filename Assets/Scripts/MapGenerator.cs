@@ -85,10 +85,18 @@ namespace WorldMapGen
         // Generate elevation for every tile
         protected virtual void GenerateElevation()
         {
-            float noiseScale = parameters.NoiseScale *
-                               Mathf.Max(parameters.Width, parameters.Height);
-            Vector2 noiseOffset =
-                new Vector2(Random.Range(0.0f, noiseMaxOffset),
+            // Noise scale adjusted for each dimension
+            Vector2 noiseScale = new Vector2(
+                DimensionNoiseScale(
+                    parameters.WrapX, parameters.Width, parameters.Height),
+                DimensionNoiseScale(
+                    parameters.WrapY, parameters.Height, parameters.Width));
+
+            // Offsets used to randomise noise
+            Vector4 noiseOffset =
+                new Vector4(Random.Range(0.0f, noiseMaxOffset),
+                            Random.Range(0.0f, noiseMaxOffset),
+                            Random.Range(0.0f, noiseMaxOffset),
                             Random.Range(0.0f, noiseMaxOffset));
 
             // Sorted list of the raw noise values for each tile
@@ -101,9 +109,37 @@ namespace WorldMapGen
                 {
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
-                    currentTile.Elevation = Mathf.Clamp01(
-                        SimplexNoise.Noise2D(j / noiseScale + noiseOffset.x,
-                                             i / noiseScale + noiseOffset.y));
+                    if (parameters.WrapX)
+                    {
+                        // The wrapping dimension makes a circle in the noise
+                        float noiseAngle =
+                            2.0f * Mathf.PI * j / parameters.Width;
+                        currentTile.Elevation = SimplexNoise.Noise3D(
+                            Mathf.Sin(noiseAngle) * noiseScale.x +
+                                noiseOffset.x,
+                            Mathf.Cos(noiseAngle) * noiseScale.x +
+                                noiseOffset.y,
+                            i * noiseScale.y + noiseOffset.z);
+                    }
+                    else if (parameters.WrapY)
+                    {
+                        float noiseAngle =
+                            2.0f * Mathf.PI * i / parameters.Height;
+                        currentTile.Elevation = SimplexNoise.Noise3D(
+                            j * noiseScale.x + noiseOffset.x,
+                            Mathf.Sin(noiseAngle) * noiseScale.y +
+                                noiseOffset.y,
+                            Mathf.Cos(noiseAngle) * noiseScale.y +
+                                noiseOffset.z);
+                    }
+                    else
+                    {
+                        currentTile.Elevation = SimplexNoise.Noise2D(
+                            j * noiseScale.x + noiseOffset.x,
+                            i * noiseScale.y + noiseOffset.y);
+                    }
+                    currentTile.Elevation =
+                        Mathf.Clamp01(currentTile.Elevation);
 
                     // Add the value to the sorted list
                     int sortedIndex =
@@ -150,6 +186,41 @@ namespace WorldMapGen
                     }
                 }
             }
+        }
+
+        // Return the noise scale factor adjusted for a particular dimension
+        // wrap: does the map wrap in this dimension?
+        // dimension: number of tiles in this dimension
+        // otherDimension: number of tiles in the other dimension
+        protected virtual float DimensionNoiseScale(
+            bool wrap, int dimension, int otherDimension)
+        {
+            // The number of noise function units covered by one tile in this
+            // dimension should be 1/(noise scale parameter*N), where N is the
+            // number of tiles in the longer dimension
+
+            float scale = 1.0f / parameters.NoiseScale;
+
+            if (wrap)
+            {
+                // In a wrapping dimension, one tile covers 2*pi/dimension
+                // unscaled noise function units
+                scale /= 2.0f * Mathf.PI;
+                if (otherDimension > dimension)
+                {
+                    scale *= dimension;
+                    scale /= otherDimension;
+                }
+            }
+            else
+            {
+
+                // In a non-wrapping dimension, one tile covers one unscaled
+                // noise function unit
+                scale /= Mathf.Max(dimension, otherDimension);
+            }
+
+            return scale;
         }
 
         // Generate temperature for every tile
