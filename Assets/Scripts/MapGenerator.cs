@@ -310,8 +310,17 @@ namespace WorldMapGen
                         elevation = 0.0f;
                     }
 
-                    // Add the effect of orographic rainfall
-                    if (j > 0)
+                    // If wrapping horizontally, apply orographic precipitation
+                    // from the last tile in the row to the first
+                    if (j == 0 && parameters.WrapX)
+                    {
+                        Tile prevTile =
+                            (Tile)currentMap.GetTile(
+                            new Vector3Int(parameters.Width - x - 1, i, 0));
+                        prevElevation = prevTile.Elevation;
+                    }
+                    // Add the effect of orographic precipitation
+                    if (j > 0 || parameters.WrapX)
                     {
                         currentTile.Precipitation += OrographicRainfall(
                             elevation, prevElevation,
