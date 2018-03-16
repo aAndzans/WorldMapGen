@@ -317,7 +317,7 @@ namespace WorldMapGen
                         Tile prevTile =
                             (Tile)currentMap.GetTile(
                             new Vector3Int(parameters.Width - x - 1, i, 0));
-                        prevElevation = prevTile.Elevation;
+                        prevElevation = Mathf.Max(0.0f, prevTile.Elevation);
                     }
                     // Add the effect of orographic precipitation
                     if (j > 0 || parameters.WrapX)

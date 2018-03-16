@@ -253,7 +253,7 @@ MonoBehaviour:
     tileScale: {x: 200, y: 200}
     oceanCoverage: 0.71
     rotateWest: 0
-    wrapX: 0
+    wrapX: 1
     wrapY: 0
     noiseScale: 0.3
     tileTypes:
