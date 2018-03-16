@@ -33,6 +33,9 @@ namespace WorldMapGen
         // Map currently being generated
         protected Tilemap currentMap;
 
+        // Map's dimensions in km
+        protected Vector2 scaledSize;
+
         // Coordinates of every ocean tile in km
         protected List<Vector2> oceanCoords;
 
@@ -41,6 +44,7 @@ namespace WorldMapGen
         {
             map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
+            scaledSize = ScaleCoords(parameters.Width, parameters.Height);
             oceanCoords = new List<Vector2>();
 
             CreateTiles();
@@ -416,10 +420,28 @@ namespace WorldMapGen
             // Find the square distance to the nearest ocean tile
             foreach (Vector2 oceanTile in oceanCoords)
             {
-                float sqDist = (oceanTile - currentTile).sqrMagnitude;
-                if (sqDist < shortestSqDist)
+                // Distance between both tiles in each dimension
+                Vector2 diff = oceanTile - currentTile;
+
+                shortestSqDist = Mathf.Min(shortestSqDist, diff.sqrMagnitude);
+
+                // If wrapping, also check distance in the directions that
+                // wrap around the edges
+                Vector2 wrappedDiff = new Vector2(
+                    scaledSize.x - Mathf.Abs(diff.x),
+                    scaledSize.y - Mathf.Abs(diff.y));
+
+                if (parameters.WrapX)
                 {
-                    shortestSqDist = sqDist;
+                    shortestSqDist = Mathf.Min(
+                        shortestSqDist,
+                        new Vector2(wrappedDiff.x, diff.y).sqrMagnitude);
+                }
+                if (parameters.WrapY)
+                {
+                    shortestSqDist = Mathf.Min(
+                        shortestSqDist,
+                        new Vector2(diff.x, wrappedDiff.y).sqrMagnitude);
                 }
             }
 
