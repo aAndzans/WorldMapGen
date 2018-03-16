@@ -92,11 +92,11 @@ namespace WorldMapGen
             // Noise scale adjusted for each dimension
             Vector2 noiseScale = new Vector2(
                 DimensionNoiseScale(
-                    parameters.WrapX, parameters.Width, parameters.Height,
-                    parameters.TileScale.x, parameters.TileScale.y),
+                    parameters.WrapX, parameters.Width,
+                    parameters.TileScale.x, scaledSize.x, scaledSize.y),
                 DimensionNoiseScale(
-                    parameters.WrapY, parameters.Height, parameters.Width,
-                    parameters.TileScale.y, parameters.TileScale.x));
+                    parameters.WrapY, parameters.Height,
+                    parameters.TileScale.y, scaledSize.y, scaledSize.x));
 
             // Offsets used to randomise noise
             Vector4 noiseOffset =
@@ -197,10 +197,12 @@ namespace WorldMapGen
         // Return the noise scale factor adjusted for a particular dimension
         // wrap: does the map wrap in this dimension?
         // dimension: number of tiles in this dimension
-        // otherDimension: number of tiles in the other dimension
+        // tileScale: tile scale in this dimension
+        // scaledDimension: map size in this dimension in km
+        // scaledOtherDimension: map size in the other dimension in km
         protected virtual float DimensionNoiseScale(
-            bool wrap, int dimension, int otherDimension,
-            float dimensionTileScale, float otherDimensionTileScale)
+            bool wrap, int dimension, float tileScale,
+            float scaledDimension, float scaledOtherDimension)
         {
             // The number of noise function units covered by one tile in this
             // dimension should be 1/(noise scale parameter*N), where N is the
@@ -210,11 +212,6 @@ namespace WorldMapGen
             // the other dimension
 
             float scale = 1.0f / parameters.NoiseScale;
-
-            // Map dimensions in km
-            float scaledDimension = dimension * dimensionTileScale;
-            float scaledOtherDimension =
-                otherDimension * otherDimensionTileScale;
 
             if (wrap)
             {
@@ -237,7 +234,7 @@ namespace WorldMapGen
                 }
                 else
                 {
-                    scale *= dimensionTileScale;
+                    scale *= tileScale;
                     scale /= scaledOtherDimension;
                 }
             }
