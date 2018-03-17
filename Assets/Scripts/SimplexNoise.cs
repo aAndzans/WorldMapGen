@@ -55,7 +55,8 @@ namespace WorldMapGen
         // is doubled
         private static readonly int[] perm = new int[512];
         // Constants for skewing to and from the simplex grid
-        private static readonly float skew2D, unskew2D, skew3D, unskew3D;
+        private static readonly float
+            skew2D, unskew2D, skew3D, unskew3D, skew4D, unskew4D;
 
         // A lookup table to traverse the simplex around a given point in 4D
         // Details can be found where this table is used in the 4D noise method
@@ -89,6 +90,9 @@ namespace WorldMapGen
 
             skew3D = 1.0f / 3.0f;
             unskew3D = 1.0f / 6.0f;
+
+            skew4D = (Mathf.Sqrt(5.0f) - 1.0f) / 4.0f;
+            unskew4D = (5.0f - Mathf.Sqrt(5.0f)) / 20.0f;
         }
 
         // Return the dot product between (x,y) of the vector at the given
@@ -107,7 +111,7 @@ namespace WorldMapGen
 
         // Return the dot product between the vector at the given index in
         // grad4 and the given values
-        private static double Dot(int g, float x, float y, float z, float w)
+        private static float Dot(int g, float x, float y, float z, float w)
         {
             return grad4[g, 0] * x + grad4[g, 1] * y + grad4[g, 2] * z +
                 grad4[g, 3] * w;
@@ -119,7 +123,7 @@ namespace WorldMapGen
             float n0, n1, n2;  // Noise contributions from the three corners
 
             // Skew the input space to determine which simplex cell we're in
-            float s = (xin + yin) * skew2D; // Hairy factor for 2D
+            float s = (xin + yin) * skew2D;
             int i = Mathf.FloorToInt(xin + s);
             int j = Mathf.FloorToInt(yin + s);
 
@@ -316,6 +320,157 @@ namespace WorldMapGen
             // Add contributions from each corner to get the final noise value
             // The result is scaled to stay just inside [0,1]
             return 16.0f * (n0 + n1 + n2 + n3) + 0.5f;
+        }
+
+        // 4D simplex noise
+        public static float Noise4D(float x, float y, float z, float w)
+        {
+            // Noise contributions from the five corners
+            float n0, n1, n2, n3, n4;
+
+            // Skew the (x,y,z,w) space to determine which cell of 24 simplices
+            // we're in
+            float s = (x + y + z + w) * skew4D;
+            int i = Mathf.FloorToInt(x + s);
+            int j = Mathf.FloorToInt(y + s);
+            int k = Mathf.FloorToInt(z + s);
+            int l = Mathf.FloorToInt(w + s);
+
+            // Unskew the cell origin back to (x,y,z,w) space
+            float t = (i + j + k + l) * unskew4D;
+            // The x,y,z,w distances from the cell origin
+            float x0 = x - i + t;
+            float y0 = y - j + t;
+            float z0 = z - k + t;
+            float w0 = w - l + t;
+
+            // For the 4D case, the simplex is a 4D shape I won't even try to
+            // describe.
+            // To find out which of the 24 possible simplices we're in, we need
+            // to determine the magnitude ordering of x0, y0, z0 and w0.
+            // The method below is a good way of finding the ordering of
+            // x,y,z,w and then find the correct traversal order for the
+            // simplex we’re in.
+            // First, six pair-wise comparisons are performed between each
+            // possible pair of the four coordinates, and the results are used
+            // to add up binary bits for an integer index.
+            int c1 = (x0 > y0) ? 32 : 0;
+            int c2 = (x0 > z0) ? 16 : 0;
+            int c3 = (y0 > z0) ? 8 : 0;
+            int c4 = (x0 > w0) ? 4 : 0;
+            int c5 = (y0 > w0) ? 2 : 0;
+            int c6 = (z0 > w0) ? 1 : 0;
+            int c = c1 + c2 + c3 + c4 + c5 + c6;
+
+            int i1, j1, k1, l1; // Integer offsets for the 2nd simplex corner
+            int i2, j2, k2, l2; // Integer offsets for the 3rd simplex corner
+            int i3, j3, k3, l3; // Integer offsets for the 4th simplex corner
+
+            // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some
+            // order.
+            // Many values of c will never occur, since e.g. x>y>z>w makes x<z,
+            // y<w and x<w impossible. Only the 24 indices which have non-zero
+            // entries make any sense.
+            // We use a thresholding to set the coordinates in turn from the
+            // largest magnitude.
+
+            // 3 is at the position of the largest coordinate
+            i1 = simplex[c, 0] >= 3 ? 1 : 0;
+            j1 = simplex[c, 1] >= 3 ? 1 : 0;
+            k1 = simplex[c, 2] >= 3 ? 1 : 0;
+            l1 = simplex[c, 3] >= 3 ? 1 : 0;
+            // 2 is at the second largest coordinate
+            i2 = simplex[c, 0] >= 2 ? 1 : 0;
+            j2 = simplex[c, 1] >= 2 ? 1 : 0;
+            k2 = simplex[c, 2] >= 2 ? 1 : 0;
+            l2 = simplex[c, 3] >= 2 ? 1 : 0;
+            // 1 is at the second smallest coordinate
+            i3 = simplex[c, 0] >= 1 ? 1 : 0;
+            j3 = simplex[c, 1] >= 1 ? 1 : 0;
+            k3 = simplex[c, 2] >= 1 ? 1 : 0;
+            l3 = simplex[c, 3] >= 1 ? 1 : 0;
+            // The fifth corner has all coordinate offsets = 1, so no need to
+            // look that up
+
+            // Offsets for second corner in (x,y,z,w) coords
+            float x1 = x0 - i1 + unskew4D;
+            float y1 = y0 - j1 + unskew4D;
+            float z1 = z0 - k1 + unskew4D;
+            float w1 = w0 - l1 + unskew4D;
+            // Offsets for third corner in (x,y,z,w) coords
+            float x2 = x0 - i2 + 2.0f * unskew4D;
+            float y2 = y0 - j2 + 2.0f * unskew4D;
+            float z2 = z0 - k2 + 2.0f * unskew4D;
+            float w2 = w0 - l2 + 2.0f * unskew4D;
+            // Offsets for fourth corner in (x,y,z,w) coords
+            float x3 = x0 - i3 + 3.0f * unskew4D;
+            float y3 = y0 - j3 + 3.0f * unskew4D;
+            float z3 = z0 - k3 + 3.0f * unskew4D;
+            float w3 = w0 - l3 + 3.0f * unskew4D;
+            // Offsets for last corner in (x,y,z,w) coords
+            float x4 = x0 - 1.0f + 4.0f * unskew4D;
+            float y4 = y0 - 1.0f + 4.0f * unskew4D;
+            float z4 = z0 - 1.0f + 4.0f * unskew4D;
+            float w4 = w0 - 1.0f + 4.0f * unskew4D;
+
+            // Work out the hashed gradient indices of the five simplex corners
+            int ii = i & 255;
+            int jj = j & 255;
+            int kk = k & 255;
+            int ll = l & 255;
+            int gi0 = perm[ii + perm[jj + perm[kk + perm[ll]]]] % 32;
+            int gi1 = perm[
+                ii + i1 + perm[jj + j1 + perm[kk + k1 + perm[ll + l1]]]] % 32;
+            int gi2 = perm[
+                ii + i2 + perm[jj + j2 + perm[kk + k2 + perm[ll + l2]]]] % 32;
+            int gi3 = perm[
+                ii + i3 + perm[jj + j3 + perm[kk + k3 + perm[ll + l3]]]] % 32;
+            int gi4 = perm[
+                ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
+
+            // Calculate the contribution from the five corners
+            float t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+            if (t0 < 0) n0 = 0.0f;
+            else
+            {
+                t0 *= t0;
+                n0 = t0 * t0 * Dot(gi0, x0, y0, z0, w0);
+            }
+
+            float t1 = 0.6f - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
+            if (t1 < 0) n1 = 0.0f;
+            else
+            {
+                t1 *= t1;
+                n1 = t1 * t1 * Dot(gi1, x1, y1, z1, w1);
+            }
+
+            float t2 = 0.6f - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
+            if (t2 < 0) n2 = 0.0f;
+            else
+            {
+                t2 *= t2;
+                n2 = t2 * t2 * Dot(gi2, x2, y2, z2, w2);
+            }
+
+            float t3 = 0.6f - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
+            if (t3 < 0) n3 = 0.0f;
+            else
+            {
+                t3 *= t3;
+                n3 = t3 * t3 * Dot(gi3, x3, y3, z3, w3);
+            }
+
+            float t4 = 0.6f - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
+            if (t4 < 0) n4 = 0.0f;
+            else
+            {
+                t4 *= t4;
+                n4 = t4 * t4 * Dot(gi4, x4, y4, z4, w4);
+            }
+
+            // Sum up and scale the result to cover the range [0,1]
+            return 13.5f * (n0 + n1 + n2 + n3 + n4) + 0.5f;
         }
     }
 }
