@@ -86,6 +86,13 @@ namespace WorldMapGen
                                y * parameters.TileScale.y);
         }
 
+        // Return the angle corresponding to a particular tile in a wrapping
+        // dimension
+        protected virtual float WrappingAngle(int coord, int dimension)
+        {
+            return 2.0f * Mathf.PI * coord / dimension;
+        }
+
         // Generate elevation for every tile
         protected virtual void GenerateElevation()
         {
@@ -115,11 +122,27 @@ namespace WorldMapGen
                 {
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
-                    if (parameters.WrapX)
+                    if (parameters.WrapX && parameters.WrapY)
                     {
-                        // The wrapping dimension makes a circle in the noise
+                        // Wrapping dimensions make a circle in the noise
+                        float noiseAngleX =
+                            WrappingAngle(j, parameters.Width);
+                        float noiseAngleY =
+                            WrappingAngle(i, parameters.Height);
+                        currentTile.Elevation = SimplexNoise.Noise4D(
+                            Mathf.Sin(noiseAngleX) * noiseScale.x +
+                                noiseOffset.x,
+                            Mathf.Cos(noiseAngleX) * noiseScale.x +
+                                noiseOffset.y,
+                            Mathf.Sin(noiseAngleY) * noiseScale.y +
+                                noiseOffset.z,
+                            Mathf.Cos(noiseAngleY) * noiseScale.y +
+                                noiseOffset.w);
+                    }
+                    else if (parameters.WrapX)
+                    {
                         float noiseAngle =
-                            2.0f * Mathf.PI * j / parameters.Width;
+                            WrappingAngle(j, parameters.Width);
                         currentTile.Elevation = SimplexNoise.Noise3D(
                             Mathf.Sin(noiseAngle) * noiseScale.x +
                                 noiseOffset.x,
@@ -130,7 +153,7 @@ namespace WorldMapGen
                     else if (parameters.WrapY)
                     {
                         float noiseAngle =
-                            2.0f * Mathf.PI * i / parameters.Height;
+                            WrappingAngle(i, parameters.Height);
                         currentTile.Elevation = SimplexNoise.Noise3D(
                             j * noiseScale.x + noiseOffset.x,
                             Mathf.Sin(noiseAngle) * noiseScale.y +
@@ -140,6 +163,7 @@ namespace WorldMapGen
                     }
                     else
                     {
+                        // Not wrapping
                         currentTile.Elevation = SimplexNoise.Noise2D(
                             j * noiseScale.x + noiseOffset.x,
                             i * noiseScale.y + noiseOffset.y);
@@ -314,8 +338,7 @@ namespace WorldMapGen
                     // from the last tile in the row to the first
                     if (j == 0 && parameters.WrapX)
                     {
-                        Tile prevTile =
-                            (Tile)currentMap.GetTile(
+                        Tile prevTile = (Tile)currentMap.GetTile(
                             new Vector3Int(parameters.Width - x - 1, i, 0));
                         prevElevation = Mathf.Max(0.0f, prevTile.Elevation);
                     }
