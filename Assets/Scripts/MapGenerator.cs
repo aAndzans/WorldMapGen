@@ -472,6 +472,11 @@ namespace WorldMapGen
                         shortestSqDist,
                         new Vector2(diff.x, wrappedDiff.y).sqrMagnitude);
                 }
+                if (parameters.WrapX && parameters.WrapY)
+                {
+                    shortestSqDist = Mathf.Min(
+                        shortestSqDist, wrappedDiff.sqrMagnitude);
+                }
             }
 
             return Mathf.Exp(Mathf.Sqrt(shortestSqDist) /
