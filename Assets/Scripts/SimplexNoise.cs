@@ -2,7 +2,7 @@
 
 namespace WorldMapGen
 {
-    // 4D integer coordinates (4D version of Vector2Int and Vector3Int)
+    // 4D integer coordinates
     public struct Vector4Int
     {
         public int x { get; set; }
@@ -11,14 +11,14 @@ namespace WorldMapGen
         public int w { get; set; }
 
         // Shorthand for writing Vector4Int(0, 0, 0, 0)
-        public static Vector4Int zero { get; private set; }
-        // Shorthand for writing Vector4Int(1, 1, 1, 1)
-        public static Vector4Int one { get; private set; }
-
-        static Vector4Int()
+        public static Vector4Int zero
         {
-            zero = new Vector4Int(0, 0, 0, 0);
-            one = new Vector4Int(1, 1, 1, 1);
+            get { return new Vector4Int(0, 0, 0, 0); }
+        }
+        // Shorthand for writing Vector4Int(1, 1, 1, 1)
+        public static Vector4Int one
+        {
+            get { return new Vector4Int(1, 1, 1, 1); }
         }
 
         public Vector4Int(int x, int y, int z, int w)
@@ -35,20 +35,20 @@ namespace WorldMapGen
         }
     }
 
-    // Class containing Simplex noise functions
+    // Class containing simplex noise functions
     // This code is based on Stefan Gustavson's Java implementation:
     // http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
     public static class SimplexNoise
     {
         // Gradient array for 2D and 3D noise
-        private static readonly Vector3[] grad3 =
+        private static readonly Vector3Int[] grad3 =
         {
-            new Vector3(1, 1, 0), new Vector3(-1, 1, 0),
-            new Vector3(1, -1, 0), new Vector3(-1, -1, 0),
-            new Vector3(1, 0, 1), new Vector3(-1, 0, 1),
-            new Vector3(1, 0, -1), new Vector3(-1, 0, -1),
-            new Vector3(0, 1, 1), new Vector3(0, -1, 1),
-            new Vector3(0, 1, -1), new Vector3(0, -1, -1)
+            new Vector3Int(1, 1, 0), new Vector3Int(-1, 1, 0),
+            new Vector3Int(1, -1, 0), new Vector3Int(-1, -1, 0),
+            new Vector3Int(1, 0, 1), new Vector3Int(-1, 0, 1),
+            new Vector3Int(1, 0, -1), new Vector3Int(-1, 0, -1),
+            new Vector3Int(0, 1, 1), new Vector3Int(0, -1, 1),
+            new Vector3Int(0, 1, -1), new Vector3Int(0, -1, -1)
         };
 
         // Gradient array for 4D noise
@@ -176,12 +176,12 @@ namespace WorldMapGen
             if (corners[0].x > corners[0].y)
             {
                 // Lower triangle, XY order: (0,0)->(1,0)->(1,1)
-                skewedOffsets[1] = Vector2Int.right;
+                skewedOffsets[1] = new Vector2Int(1, 0);
             }
             else
             {
                 // Upper triangle, YX order: (0,0)->(0,1)->(1,1)
-                skewedOffsets[1] = Vector2Int.up;
+                skewedOffsets[1] = new Vector2Int(0, 1);
             }
             // Last corner's offsets are always (1,1)
             skewedOffsets[2] = Vector2Int.one;
@@ -195,12 +195,12 @@ namespace WorldMapGen
             {
                 float unskewOffset = unskew2D * i;
                 corners[i] = corners[0] - skewedOffsets[i];
-                corners[i] = new Vector2(corners[i].x + unskewOffset,
-                                         corners[i].y + unskewOffset);
+                corners[i].x += unskewOffset;
+                corners[i].y += unskewOffset;
             }
 
-            skewedCell = new Vector2Int(skewedCell.x & 255,
-                                        skewedCell.y & 255);
+            skewedCell.x &= 255;
+            skewedCell.y &= 255;
 
             // Sum of noise contributions from the three corners
             float noise = 0.0f;
@@ -217,7 +217,8 @@ namespace WorldMapGen
                         perm[skewedCell.x + skewedOffsets[i].x +
                              perm[skewedCell.y + skewedOffsets[i].y]] % 12;
                     t *= t;
-                    noise += t * t * Vector2.Dot(grad3[gi], corners[i]);
+                    noise += t * t * Vector2.Dot(
+                        new Vector2(grad3[gi].x, grad3[gi].y), corners[i]);
                 }
             }
 
@@ -259,14 +260,14 @@ namespace WorldMapGen
                 if (corners[0].y >= corners[0].z)
                 {
                     // X Y Z order
-                    skewedOffsets[1] = Vector3Int.right;
+                    skewedOffsets[1] = new Vector3Int(1, 0, 0);
                     skewedOffsets[2] = new Vector3Int(1, 1, 0);
 
                 }
                 else if (corners[0].x >= corners[0].z)
                 {
                     // X Z Y order
-                    skewedOffsets[1] = Vector3Int.right;
+                    skewedOffsets[1] = new Vector3Int(1, 0, 0);
                     skewedOffsets[2] = new Vector3Int(1, 0, 1);
                 }
                 else
@@ -288,13 +289,13 @@ namespace WorldMapGen
                 else if (corners[0].x < corners[0].z)
                 {
                     // Y Z X order
-                    skewedOffsets[1] = Vector3Int.up;
+                    skewedOffsets[1] = new Vector3Int(0, 1, 0);
                     skewedOffsets[2] = new Vector3Int(0, 1, 1);
                 }
                 else
                 {
                     // Y X Z order
-                    skewedOffsets[1] = Vector3Int.up;
+                    skewedOffsets[1] = new Vector3Int(0, 1, 0);
                     skewedOffsets[2] = new Vector3Int(1, 1, 0);
                 }
             }
@@ -313,13 +314,14 @@ namespace WorldMapGen
             {
                 float unskewOffset = unskew3D * i;
                 corners[i] = corners[0] - skewedOffsets[i];
-                corners[i] = new Vector3(
-                    corners[i].x + unskewOffset, corners[i].y + unskewOffset,
-                    corners[i].z + unskewOffset);
+                corners[i].x += unskewOffset;
+                corners[i].y += unskewOffset;
+                corners[i].z += unskewOffset;
             }
 
-            skewedCell = new Vector3Int(skewedCell.x & 255, skewedCell.y & 255,
-                                        skewedCell.z & 255);
+            skewedCell.x &= 255;
+            skewedCell.y &= 255;
+            skewedCell.z &= 255;
 
             // Sum of noise contributions from the four corners
             float noise = 0.0f;
