@@ -100,13 +100,6 @@ namespace WorldMapGen
         }
 
         // Return the dot product between the vector at the given index in
-        // grad3 and the given values
-        private static float Dot(int g, float x, float y, float z)
-        {
-            return grad3[g].x * x + grad3[g].y * y + grad3[g].z * z;
-        }
-
-        // Return the dot product between the vector at the given index in
         // grad4 and the given values
         private static float Dot(int g, float x, float y, float z, float w)
         {
@@ -195,65 +188,78 @@ namespace WorldMapGen
         // 3D simplex noise
         public static float Noise3D(float x, float y, float z)
         {
-            // Noise contributions from the four corners
-            float n0, n1, n2, n3;
+            // Simplex corners in (x,y,z) coords
+            Vector3[] corners = new Vector3[4];
 
             // Skew the input space to determine which simplex cell we're in
-            float s = (x + y + z) * skew3D;
-            int i = Mathf.FloorToInt(x + s);
-            int j = Mathf.FloorToInt(y + s);
-            int k = Mathf.FloorToInt(z + s);
+            float offset = (x + y + z) * skew3D;
+            // Cell origin in (i,j,k) coords
+            Vector3Int skewedCell = new Vector3Int(
+                Mathf.FloorToInt(x + offset), Mathf.FloorToInt(y + offset),
+                Mathf.FloorToInt(z + offset));
 
             // Unskew the cell origin back to (x,y,z) space
-            float t = (i + j + k) * unskew3D;
+            offset = (skewedCell.x + skewedCell.y + skewedCell.z) * unskew3D;
             // The x,y,z distances from the cell origin
-            float x0 = x - i + t;
-            float y0 = y - j + t;
-            float z0 = z - k + t;
+            corners[0].x = x - skewedCell.x + offset;
+            corners[0].y = y - skewedCell.y + offset;
+            corners[0].z = z - skewedCell.z + offset;
 
             // For the 3D case, the simplex shape is a slightly irregular
             // tetrahedron
             // Determine which simplex we are in
-            int i1, j1, k1; // Offsets for second corner of simplex in (i,j,k)
-            int i2, j2, k2; // Offsets for third corner of simplex in (i,j,k)
 
-            if (x0 >= y0)
+            // Offsets for simplex corners in (i,j,k) coords
+            Vector3Int[] skewedOffsets = new Vector3Int[4];
+            // First corner's offsets are always (0,0,0)
+            skewedOffsets[0] = Vector3Int.zero;
+            // Second and third corners
+            if (corners[0].x >= corners[0].y)
             {
-                if (y0 >= z0)
+                if (corners[0].y >= corners[0].z)
                 {
                     // X Y Z order
-                    i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0;
+                    skewedOffsets[1] = Vector3Int.right;
+                    skewedOffsets[2] = new Vector3Int(1, 1, 0);
+
                 }
-                else if (x0 >= z0)
+                else if (corners[0].x >= corners[0].z)
                 {
                     // X Z Y order
-                    i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1;
+                    skewedOffsets[1] = Vector3Int.right;
+                    skewedOffsets[2] = new Vector3Int(1, 0, 1);
                 }
                 else
                 {
                     // Z X Y order
-                    i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1;
+                    skewedOffsets[1] = new Vector3Int(0, 0, 1);
+                    skewedOffsets[2] = new Vector3Int(1, 0, 1);
                 }
             }
             else
             {
-                // x0<y0
-                if (y0 < z0)
+                // corners[0].x < corners[0].y
+                if (corners[0].y < corners[0].z)
                 {
                     // Z Y X order
-                    i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1;
+                    skewedOffsets[1] = new Vector3Int(0, 0, 1);
+                    skewedOffsets[2] = new Vector3Int(0, 1, 1);
                 }
-                else if (x0 < z0)
+                else if (corners[0].x < corners[0].z)
                 {
                     // Y Z X order
-                    i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1;
+                    skewedOffsets[1] = Vector3Int.up;
+                    skewedOffsets[2] = new Vector3Int(0, 1, 1);
                 }
                 else
                 {
                     // Y X Z order
-                    i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0;
+                    skewedOffsets[1] = Vector3Int.up;
+                    skewedOffsets[2] = new Vector3Int(1, 1, 0);
                 }
             }
+            // Last corner's offsets are always (1,1,1)
+            skewedOffsets[3] = Vector3Int.one;
 
             // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in
             // (x,y,z),
@@ -262,64 +268,43 @@ namespace WorldMapGen
             // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in
             // (x,y,z), where c = 1/6
 
-            // Offsets for second corner in (x,y,z) coords
-            float x1 = x0 - i1 + unskew3D;
-            float y1 = y0 - j1 + unskew3D;
-            float z1 = z0 - k1 + unskew3D;
-            // Offsets for third corner in (x,y,z) coords
-            float x2 = x0 - i2 + 2.0f * unskew3D;
-            float y2 = y0 - j2 + 2.0f * unskew3D;
-            float z2 = z0 - k2 + 2.0f * unskew3D;
-            // Offsets for last corner in (x,y,z) coords
-            float x3 = x0 - 1.0f + 3.0f * unskew3D;
-            float y3 = y0 - 1.0f + 3.0f * unskew3D;
-            float z3 = z0 - 1.0f + 3.0f * unskew3D;
+            // Second to fourth corners in (x,y,z) coords
+            for (int i = 1; i < 4; i++)
+            {
+                float unskewOffset = unskew3D * i;
+                corners[i] = corners[0] - skewedOffsets[i];
+                corners[i] = new Vector3(
+                    corners[i].x + unskewOffset, corners[i].y + unskewOffset,
+                    corners[i].z + unskewOffset);
+            }
 
             // Work out the hashed gradient indices of the four simplex corners
-            int ii = i & 255;
-            int jj = j & 255;
-            int kk = k & 255;
-            int gi0 = perm[ii + perm[jj + perm[kk]]] % 12;
-            int gi1 = perm[ii + i1 + perm[jj + j1 + perm[kk + k1]]] % 12;
-            int gi2 = perm[ii + i2 + perm[jj + j2 + perm[kk + k2]]] % 12;
-            int gi3 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] % 12;
+            skewedCell = new Vector3Int(skewedCell.x & 255, skewedCell.y & 255,
+                                        skewedCell.z & 255);
 
-            // Calculate the contribution from the four corners
-            float t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
-            if (t0 < 0) n0 = 0.0f;
-            else
+            // Sum of noise contributions from the four corners
+            float noise = 0.0f;
+
+            // Add up the contribution from the four corners
+            for (int i = 0; i < 4; i++)
             {
-                t0 *= t0;
-                n0 = t0 * t0 * Dot(gi0, x0, y0, z0);
+                float t = 0.6f - corners[i].x * corners[i].x -
+                                 corners[i].y * corners[i].y -
+                                 corners[i].z * corners[i].z;
+                if (t >= 0.0f)
+                {
+                    // Corner's hashed gradient index
+                    int gi = perm[
+                        skewedCell.x + skewedOffsets[i].x +
+                        perm[skewedCell.y + skewedOffsets[i].y +
+                             perm[skewedCell.z + skewedOffsets[i].z]]] % 12;
+                    t *= t;
+                    noise += t * t * Vector3.Dot(grad3[gi], corners[i]);
+                }
             }
 
-            float t1 = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
-            if (t1 < 0) n1 = 0.0f;
-            else
-            {
-                t1 *= t1;
-                n1 = t1 * t1 * Dot(gi1, x1, y1, z1);
-            }
-
-            float t2 = 0.6f - x2 * x2 - y2 * y2 - z2 * z2;
-            if (t2 < 0) n2 = 0.0f;
-            else
-            {
-                t2 *= t2;
-                n2 = t2 * t2 * Dot(gi2, x2, y2, z2);
-            }
-
-            float t3 = 0.6f - x3 * x3 - y3 * y3 - z3 * z3;
-            if (t3 < 0) n3 = 0.0f;
-            else
-            {
-                t3 *= t3;
-                n3 = t3 * t3 * Dot(gi3, x3, y3, z3);
-            }
-
-            // Add contributions from each corner to get the final noise value
             // The result is scaled to stay just inside [0,1]
-            return 16.0f * (n0 + n1 + n2 + n3) + 0.5f;
+            return 16.0f * noise + 0.5f;
         }
 
         // 4D simplex noise
