@@ -150,14 +150,14 @@ namespace WorldMapGen
             // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y),
             // where c = (3-sqrt(3))/6
 
-            // Offsets for middle corner in (x,y) unskewed coords
-            corners[1] = corners[0] - skewedOffsets[1];
-            corners[1] = new Vector2(corners[1].x + unskew2D,
-                                     corners[1].y + unskew2D);
-            // Offsets for last corner in (x,y) unskewed coords
-            float lastCornerOffset = 2.0f * unskew2D - 1.0f;
-            corners[2] = new Vector2(corners[0].x + lastCornerOffset,
-                                     corners[0].y + lastCornerOffset);
+            // Second and third corners in (x,y) coords
+            for (int i = 1; i < 3; i++)
+            {
+                float unskewOffset = unskew2D * i;
+                corners[i] = corners[0] - skewedOffsets[i];
+                corners[i] = new Vector2(corners[i].x + unskewOffset,
+                                         corners[i].y + unskewOffset);
+            }
 
             skewedCell = new Vector2Int(skewedCell.x & 255,
                                         skewedCell.y & 255);

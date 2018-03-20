@@ -254,7 +254,7 @@ MonoBehaviour:
     oceanCoverage: 0.71
     rotateWest: 0
     wrapX: 0
-    wrapY: 1
+    wrapY: 0
     noiseScale: 0.3
     tileTypes:
     - name: Ocean
