@@ -278,7 +278,6 @@ namespace WorldMapGen
                     corners[i].z + unskewOffset);
             }
 
-            // Work out the hashed gradient indices of the four simplex corners
             skewedCell = new Vector3Int(skewedCell.x & 255, skewedCell.y & 255,
                                         skewedCell.z & 255);
 
