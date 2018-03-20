@@ -159,8 +159,8 @@ namespace WorldMapGen
             corners[2] = new Vector2(corners[0].x + lastCornerOffset,
                                      corners[0].y + lastCornerOffset);
 
-            skewedCell.x &= 255;
-            skewedCell.y &= 255;
+            skewedCell = new Vector2Int(skewedCell.x & 255,
+                                        skewedCell.y & 255);
 
             // Sum of noise contributions from the three corners
             float noise = 0.0f;
