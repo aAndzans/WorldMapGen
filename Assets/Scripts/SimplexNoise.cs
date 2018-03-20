@@ -2,17 +2,20 @@
 
 namespace WorldMapGen
 {
-    // Class containing 2D Simplex noise function
+    // Class containing Simplex noise functions
     // This code is based on Stefan Gustavson's Java implementation:
     // http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
     public static class SimplexNoise
     {
         // Gradient array for 2D and 3D noise
-        private static readonly int[,] grad3 =
+        private static readonly Vector3[] grad3 =
         {
-            {1, 1, 0}, {-1, 1, 0}, {1, -1, 0}, {-1, -1, 0},
-            {1, 0, 1}, {-1, 0, 1}, {1, 0, -1}, {-1, 0, -1},
-            {0, 1, 1}, {0, -1, 1}, {0, 1, -1}, {0, -1, -1}
+            new Vector3(1, 1, 0), new Vector3(-1, 1, 0),
+            new Vector3(1, -1, 0), new Vector3(-1, -1, 0),
+            new Vector3(1, 0, 1), new Vector3(-1, 0, 1),
+            new Vector3(1, 0, -1), new Vector3(-1, 0, -1),
+            new Vector3(0, 1, 1), new Vector3(0, -1, 1),
+            new Vector3(0, 1, -1), new Vector3(0, -1, -1)
         };
 
         // Gradient array for 4D noise
@@ -54,6 +57,7 @@ namespace WorldMapGen
         // To remove the need for index wrapping, the permutation table length
         // is doubled
         private static readonly int[] perm = new int[512];
+
         // Constants for skewing to and from the simplex grid
         private static readonly float
             skew2D, unskew2D, skew3D, unskew3D, skew4D, unskew4D;
@@ -95,18 +99,11 @@ namespace WorldMapGen
             unskew4D = (5.0f - Mathf.Sqrt(5.0f)) / 20.0f;
         }
 
-        // Return the dot product between (x,y) of the vector at the given
-        // index in grad3 and the given values
-        private static float Dot(int g, float x, float y)
-        {
-            return grad3[g, 0] * x + grad3[g, 1] * y;
-        }
-
         // Return the dot product between the vector at the given index in
         // grad3 and the given values
         private static float Dot(int g, float x, float y, float z)
         {
-            return grad3[g, 0] * x + grad3[g, 1] * y + grad3[g, 2] * z;
+            return grad3[g].x * x + grad3[g].y * y + grad3[g].z * z;
         }
 
         // Return the dot product between the vector at the given index in
@@ -118,98 +115,101 @@ namespace WorldMapGen
         }
 
         // 2D simplex noise
-        public static float Noise2D(float xin, float yin)
+        public static float Noise2D(float x, float y)
         {
-            float n0, n1, n2;  // Noise contributions from the three corners
+            // Simplex corners in (x,y) coords
+            Vector2[] corners = new Vector2[3];
 
             // Skew the input space to determine which simplex cell we're in
-            float s = (xin + yin) * skew2D;
-            int i = Mathf.FloorToInt(xin + s);
-            int j = Mathf.FloorToInt(yin + s);
+            float offset = (x + y) * skew2D;
+            // Cell origin in (i,j) coords
+            Vector2Int skewedCell = new Vector2Int(
+                Mathf.FloorToInt(x + offset), Mathf.FloorToInt(y + offset));
 
             // Unskew the cell origin back to (x,y) space
-            float t = (i + j) * unskew2D;
-            float x0 = xin - i + t; // The x,y distances from the cell origin
-            float y0 = yin - j + t;
+            offset = (skewedCell.x + skewedCell.y) * unskew2D;
+            // The x,y distances from the cell origin
+            corners[0].x = x - skewedCell.x + offset;
+            corners[0].y = y - skewedCell.y + offset;
 
             // For the 2D case, the simplex shape is an equilateral triangle
             // Determine which simplex we are in
 
-            // Offsets for second (middle) corner of simplex in (i,j) coords
-            int i1, j1;
-            // Lower triangle, XY order: (0,0)->(1,0)->(1,1)
-            if (x0 > y0) { i1 = 1; j1 = 0; }
-            // Upper triangle, YX order: (0,0)->(0,1)->(1,1)
-            else { i1 = 0; j1 = 1; }
+            // Offsets for simplex corners in (i,j) coords
+            Vector2Int[] skewedOffsets = new Vector2Int[3];
+            // First corner's offsets are always (0,0)
+            skewedOffsets[0] = Vector2Int.zero;
+            // Second corner
+            if (corners[0].x > corners[0].y)
+            {
+                // Lower triangle, XY order: (0,0)->(1,0)->(1,1)
+                skewedOffsets[1] = Vector2Int.right;
+            }
+            else
+            {
+                // Upper triangle, YX order: (0,0)->(0,1)->(1,1)
+                skewedOffsets[1] = Vector2Int.up;
+            }
+            // Last corner's offsets are always (1,1)
+            skewedOffsets[2] = Vector2Int.one;
 
             // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
             // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y),
             // where c = (3-sqrt(3))/6
 
             // Offsets for middle corner in (x,y) unskewed coords
-            float x1 = x0 - i1 + unskew2D;
-            float y1 = y0 - j1 + unskew2D;
+            corners[1] = corners[0] - skewedOffsets[1];
+            corners[1] = new Vector2(corners[1].x + unskew2D,
+                                     corners[1].y + unskew2D);
             // Offsets for last corner in (x,y) unskewed coords
-            float x2 = x0 - 1.0f + 2.0f * unskew2D;
-            float y2 = y0 - 1.0f + 2.0f * unskew2D;
+            float lastCornerOffset = 2.0f * unskew2D - 1.0f;
+            corners[2] = new Vector2(corners[0].x + lastCornerOffset,
+                                     corners[0].y + lastCornerOffset);
 
-            // Work out the hashed gradient indices of the three simplex
-            // corners
-            int ii = i & 255;
-            int jj = j & 255;
-            int gi0 = perm[ii + perm[jj]] % 12;
-            int gi1 = perm[ii + i1 + perm[jj + j1]] % 12;
-            int gi2 = perm[ii + 1 + perm[jj + 1]] % 12;
+            skewedCell.x &= 255;
+            skewedCell.y &= 255;
 
-            // Calculate the contribution from the three corners
-            float t0 = 0.5f - x0 * x0 - y0 * y0;
-            if (t0 < 0) n0 = 0.0f;
-            else
+            // Sum of noise contributions from the three corners
+            float noise = 0.0f;
+
+            // Add up the contribution from the three corners
+            for (int i = 0; i < 3; i++)
             {
-                t0 *= t0;
-                // (x,y) of grad3 used for 2D gradient
-                n0 = t0 * t0 * Dot(gi0, x0, y0);
+                float t = 0.5f - corners[i].x * corners[i].x -
+                                 corners[i].y * corners[i].y;
+                if (t >= 0.0f)
+                {
+                    // Corner's hashed gradient index
+                    int gi =
+                        perm[skewedCell.x + skewedOffsets[i].x +
+                             perm[skewedCell.y + skewedOffsets[i].y]] % 12;
+                    t *= t;
+                    noise += t * t * Vector2.Dot(grad3[gi], corners[i]);
+                }
             }
 
-            float t1 = 0.5f - x1 * x1 - y1 * y1;
-            if (t1 < 0) n1 = 0.0f;
-            else
-            {
-                t1 *= t1;
-                n1 = t1 * t1 * Dot(gi1, x1, y1);
-            }
-
-            float t2 = 0.5f - x2 * x2 - y2 * y2;
-            if (t2 < 0) n2 = 0.0f;
-            else
-            {
-                t2 *= t2;
-                n2 = t2 * t2 * Dot(gi2, x2, y2);
-            }
-
-            // Add contributions from each corner to get the final noise value
             // The result is scaled to return values in the interval [0,1]
-            return 35.0f * (n0 + n1 + n2) + 0.5f;
+            return 35.0f * noise + 0.5f;
         }
 
         // 3D simplex noise
-        public static float Noise3D(float xin, float yin, float zin)
+        public static float Noise3D(float x, float y, float z)
         {
             // Noise contributions from the four corners
             float n0, n1, n2, n3;
 
             // Skew the input space to determine which simplex cell we're in
-            float s = (xin + yin + zin) * skew3D;
-            int i = Mathf.FloorToInt(xin + s);
-            int j = Mathf.FloorToInt(yin + s);
-            int k = Mathf.FloorToInt(zin + s);
+            float s = (x + y + z) * skew3D;
+            int i = Mathf.FloorToInt(x + s);
+            int j = Mathf.FloorToInt(y + s);
+            int k = Mathf.FloorToInt(z + s);
 
             // Unskew the cell origin back to (x,y,z) space
             float t = (i + j + k) * unskew3D;
             // The x,y,z distances from the cell origin
-            float x0 = xin - i + t;
-            float y0 = yin - j + t;
-            float z0 = zin - k + t;
+            float x0 = x - i + t;
+            float y0 = y - j + t;
+            float z0 = z - k + t;
 
             // For the 3D case, the simplex shape is a slightly irregular
             // tetrahedron
