@@ -2,6 +2,39 @@
 
 namespace WorldMapGen
 {
+    // 4D integer coordinates (4D version of Vector2Int and Vector3Int)
+    public struct Vector4Int
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+        public int z { get; set; }
+        public int w { get; set; }
+
+        // Shorthand for writing Vector4Int(0, 0, 0, 0)
+        public static Vector4Int zero { get; private set; }
+        // Shorthand for writing Vector4Int(1, 1, 1, 1)
+        public static Vector4Int one { get; private set; }
+
+        static Vector4Int()
+        {
+            zero = new Vector4Int(0, 0, 0, 0);
+            one = new Vector4Int(1, 1, 1, 1);
+        }
+
+        public Vector4Int(int x, int y, int z, int w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
+
+        public static implicit operator Vector4(Vector4Int v)
+        {
+            return new Vector4(v.x, v.y, v.z, v.w);
+        }
+    }
+
     // Class containing Simplex noise functions
     // This code is based on Stefan Gustavson's Java implementation:
     // http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
@@ -19,16 +52,24 @@ namespace WorldMapGen
         };
 
         // Gradient array for 4D noise
-        private static readonly int[,] grad4 =
+        private static readonly Vector4Int[] grad4 =
         {
-            {0, 1, 1, 1}, {0, 1, 1, -1}, {0, 1, -1, 1}, {0, 1, -1, -1},
-            {0, -1, 1, 1}, {0, -1, 1, -1}, {0, -1, -1, 1}, {0, -1, -1, -1},
-            {1, 0, 1, 1}, {1, 0, 1, -1}, {1, 0, -1, 1}, {1, 0, -1, -1},
-            {-1, 0, 1, 1}, {-1, 0, 1, -1}, {-1, 0, -1, 1}, {-1, 0, -1, -1},
-            {1, 1, 0, 1}, {1, 1, 0, -1}, {1, -1, 0, 1}, {1, -1, 0, -1},
-            {-1, 1, 0, 1}, {-1, 1, 0, -1}, {-1, -1, 0, 1}, {-1, -1, 0, -1},
-            {1, 1, 1, 0}, {1, 1, -1, 0}, {1, -1, 1, 0}, {1, -1, -1, 0},
-            {-1, 1, 1, 0}, {-1, 1, -1, 0}, {-1, -1, 1, 0}, {-1, -1, -1, 0}
+            new Vector4Int(0, 1, 1, 1), new Vector4Int(0, 1, 1, -1),
+            new Vector4Int(0, 1, -1, 1), new Vector4Int(0, 1, -1, -1),
+            new Vector4Int(0, -1, 1, 1), new Vector4Int(0, -1, 1, -1),
+            new Vector4Int(0, -1, -1, 1), new Vector4Int(0, -1, -1, -1),
+            new Vector4Int(1, 0, 1, 1), new Vector4Int(1, 0, 1, -1),
+            new Vector4Int(1, 0, -1, 1), new Vector4Int(1, 0, -1, -1),
+            new Vector4Int(-1, 0, 1, 1), new Vector4Int(-1, 0, 1, -1),
+            new Vector4Int(-1, 0, -1, 1), new Vector4Int(-1, 0, -1, -1),
+            new Vector4Int(1, 1, 0, 1), new Vector4Int(1, 1, 0, -1),
+            new Vector4Int(1, -1, 0, 1), new Vector4Int(1, -1, 0, -1),
+            new Vector4Int(-1, 1, 0, 1), new Vector4Int(-1, 1, 0, -1),
+            new Vector4Int(-1, -1, 0, 1), new Vector4Int(-1, -1, 0, -1),
+            new Vector4Int(1, 1, 1, 0), new Vector4Int(1, 1, -1, 0),
+            new Vector4Int(1, -1, 1, 0), new Vector4Int(1, -1, -1, 0),
+            new Vector4Int(-1, 1, 1, 0), new Vector4Int(-1, 1, -1, 0),
+            new Vector4Int(-1, -1, 1, 0), new Vector4Int(-1, -1, -1, 0)
         };
 
         // Permutation array
@@ -64,24 +105,31 @@ namespace WorldMapGen
 
         // A lookup table to traverse the simplex around a given point in 4D
         // Details can be found where this table is used in the 4D noise method
-        private static readonly int[,] simplex =
+        private static readonly Vector4Int[] simplex =
         {
-            {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 0, 0, 0}, {0, 2, 3, 1},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 2, 3, 0},
-            {0, 2, 1, 3}, {0, 0, 0, 0}, {0, 3, 1, 2}, {0, 3, 2, 1},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 3, 2, 0},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {1, 2, 0, 3}, {0, 0, 0, 0}, {1, 3, 0, 2}, {0, 0, 0, 0},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {2, 3, 0, 1}, {2, 3, 1, 0},
-            {1, 0, 2, 3}, {1, 0, 3, 2}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {0, 0, 0, 0}, {2, 0, 3, 1}, {0, 0, 0, 0}, {2, 1, 3, 0},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {2, 0, 1, 3}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {3, 0, 1, 2}, {3, 0, 2, 1}, {0, 0, 0, 0}, {3, 1, 2, 0},
-            {2, 1, 0, 3}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-            {3, 1, 0, 2}, {0, 0, 0, 0}, {3, 2, 0, 1}, {3, 2, 1, 0}
+            new Vector4Int(0, 1, 2, 3), new Vector4Int(0, 1, 3, 2),
+            Vector4Int.zero, new Vector4Int(0, 2, 3, 1), Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, new Vector4Int(1, 2, 3, 0),
+            new Vector4Int(0, 2, 1, 3), Vector4Int.zero,
+            new Vector4Int(0, 3, 1, 2), new Vector4Int(0, 3, 2, 1),
+            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
+            new Vector4Int(1, 3, 2, 0), Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, new Vector4Int(1, 2, 0, 3),
+            Vector4Int.zero, new Vector4Int(1, 3, 0, 2), Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, new Vector4Int(2, 3, 0, 1),
+            new Vector4Int(2, 3, 1, 0), new Vector4Int(1, 0, 2, 3),
+            new Vector4Int(1, 0, 3, 2), Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, new Vector4Int(2, 0, 3, 1), Vector4Int.zero,
+            new Vector4Int(2, 1, 3, 0), Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, Vector4Int.zero, new Vector4Int(2, 0, 1, 3),
+            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
+            new Vector4Int(3, 0, 1, 2), new Vector4Int(3, 0, 2, 1),
+            Vector4Int.zero, new Vector4Int(3, 1, 2, 0),
+            new Vector4Int(2, 1, 0, 3), Vector4Int.zero, Vector4Int.zero,
+            Vector4Int.zero, new Vector4Int(3, 1, 0, 2), Vector4Int.zero,
+            new Vector4Int(3, 2, 0, 1), new Vector4Int(3, 2, 1, 0)
         };
 
         static SimplexNoise()
@@ -97,14 +145,6 @@ namespace WorldMapGen
 
             skew4D = (Mathf.Sqrt(5.0f) - 1.0f) / 4.0f;
             unskew4D = (5.0f - Mathf.Sqrt(5.0f)) / 20.0f;
-        }
-
-        // Return the dot product between the vector at the given index in
-        // grad4 and the given values
-        private static float Dot(int g, float x, float y, float z, float w)
-        {
-            return grad4[g, 0] * x + grad4[g, 1] * y + grad4[g, 2] * z +
-                grad4[g, 3] * w;
         }
 
         // 2D simplex noise
@@ -309,46 +349,46 @@ namespace WorldMapGen
         // 4D simplex noise
         public static float Noise4D(float x, float y, float z, float w)
         {
-            // Noise contributions from the five corners
-            float n0, n1, n2, n3, n4;
+            // Simplex corners in (x,y,z,w) coords
+            Vector4[] corners = new Vector4[5];
 
             // Skew the (x,y,z,w) space to determine which cell of 24 simplices
             // we're in
-            float s = (x + y + z + w) * skew4D;
-            int i = Mathf.FloorToInt(x + s);
-            int j = Mathf.FloorToInt(y + s);
-            int k = Mathf.FloorToInt(z + s);
-            int l = Mathf.FloorToInt(w + s);
+            float offset = (x + y + z + w) * skew4D;
+            // Cell origin in (i,j,k,l) coords
+            Vector4Int skewedCell = new Vector4Int(
+                Mathf.FloorToInt(x + offset), Mathf.FloorToInt(y + offset),
+                Mathf.FloorToInt(z + offset), Mathf.FloorToInt(w + offset));
 
             // Unskew the cell origin back to (x,y,z,w) space
-            float t = (i + j + k + l) * unskew4D;
+            offset = (skewedCell.x + skewedCell.y + skewedCell.z +
+                      skewedCell.w) * unskew4D;
             // The x,y,z,w distances from the cell origin
-            float x0 = x - i + t;
-            float y0 = y - j + t;
-            float z0 = z - k + t;
-            float w0 = w - l + t;
+            corners[0].x = x - skewedCell.x + offset;
+            corners[0].y = y - skewedCell.y + offset;
+            corners[0].z = z - skewedCell.z + offset;
+            corners[0].w = w - skewedCell.w + offset;
 
             // For the 4D case, the simplex is a 4D shape I won't even try to
             // describe.
             // To find out which of the 24 possible simplices we're in, we need
-            // to determine the magnitude ordering of x0, y0, z0 and w0.
+            // to determine the magnitude ordering of the origin's coordinates.
             // The method below is a good way of finding the ordering of
             // x,y,z,w and then find the correct traversal order for the
             // simplex we’re in.
             // First, six pair-wise comparisons are performed between each
             // possible pair of the four coordinates, and the results are used
             // to add up binary bits for an integer index.
-            int c1 = (x0 > y0) ? 32 : 0;
-            int c2 = (x0 > z0) ? 16 : 0;
-            int c3 = (y0 > z0) ? 8 : 0;
-            int c4 = (x0 > w0) ? 4 : 0;
-            int c5 = (y0 > w0) ? 2 : 0;
-            int c6 = (z0 > w0) ? 1 : 0;
-            int c = c1 + c2 + c3 + c4 + c5 + c6;
+            int c = 0;
+            if (corners[0].x > corners[0].y) c += 32;
+            if (corners[0].x > corners[0].z) c += 16;
+            if (corners[0].y > corners[0].z) c += 8;
+            if (corners[0].x > corners[0].w) c += 4;
+            if (corners[0].y > corners[0].w) c += 2;
+            if (corners[0].z > corners[0].w) c += 1;
 
-            int i1, j1, k1, l1; // Integer offsets for the 2nd simplex corner
-            int i2, j2, k2, l2; // Integer offsets for the 3rd simplex corner
-            int i3, j3, k3, l3; // Integer offsets for the 4th simplex corner
+            // Offsets for simplex corners in (i,j,k,l) coords
+            Vector4Int[] skewedOffsets = new Vector4Int[5];
 
             // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some
             // order.
@@ -358,103 +398,60 @@ namespace WorldMapGen
             // We use a thresholding to set the coordinates in turn from the
             // largest magnitude.
 
-            // 3 is at the position of the largest coordinate
-            i1 = simplex[c, 0] >= 3 ? 1 : 0;
-            j1 = simplex[c, 1] >= 3 ? 1 : 0;
-            k1 = simplex[c, 2] >= 3 ? 1 : 0;
-            l1 = simplex[c, 3] >= 3 ? 1 : 0;
-            // 2 is at the second largest coordinate
-            i2 = simplex[c, 0] >= 2 ? 1 : 0;
-            j2 = simplex[c, 1] >= 2 ? 1 : 0;
-            k2 = simplex[c, 2] >= 2 ? 1 : 0;
-            l2 = simplex[c, 3] >= 2 ? 1 : 0;
-            // 1 is at the second smallest coordinate
-            i3 = simplex[c, 0] >= 1 ? 1 : 0;
-            j3 = simplex[c, 1] >= 1 ? 1 : 0;
-            k3 = simplex[c, 2] >= 1 ? 1 : 0;
-            l3 = simplex[c, 3] >= 1 ? 1 : 0;
-            // The fifth corner has all coordinate offsets = 1, so no need to
-            // look that up
-
-            // Offsets for second corner in (x,y,z,w) coords
-            float x1 = x0 - i1 + unskew4D;
-            float y1 = y0 - j1 + unskew4D;
-            float z1 = z0 - k1 + unskew4D;
-            float w1 = w0 - l1 + unskew4D;
-            // Offsets for third corner in (x,y,z,w) coords
-            float x2 = x0 - i2 + 2.0f * unskew4D;
-            float y2 = y0 - j2 + 2.0f * unskew4D;
-            float z2 = z0 - k2 + 2.0f * unskew4D;
-            float w2 = w0 - l2 + 2.0f * unskew4D;
-            // Offsets for fourth corner in (x,y,z,w) coords
-            float x3 = x0 - i3 + 3.0f * unskew4D;
-            float y3 = y0 - j3 + 3.0f * unskew4D;
-            float z3 = z0 - k3 + 3.0f * unskew4D;
-            float w3 = w0 - l3 + 3.0f * unskew4D;
-            // Offsets for last corner in (x,y,z,w) coords
-            float x4 = x0 - 1.0f + 4.0f * unskew4D;
-            float y4 = y0 - 1.0f + 4.0f * unskew4D;
-            float z4 = z0 - 1.0f + 4.0f * unskew4D;
-            float w4 = w0 - 1.0f + 4.0f * unskew4D;
-
-            // Work out the hashed gradient indices of the five simplex corners
-            int ii = i & 255;
-            int jj = j & 255;
-            int kk = k & 255;
-            int ll = l & 255;
-            int gi0 = perm[ii + perm[jj + perm[kk + perm[ll]]]] % 32;
-            int gi1 = perm[
-                ii + i1 + perm[jj + j1 + perm[kk + k1 + perm[ll + l1]]]] % 32;
-            int gi2 = perm[
-                ii + i2 + perm[jj + j2 + perm[kk + k2 + perm[ll + l2]]]] % 32;
-            int gi3 = perm[
-                ii + i3 + perm[jj + j3 + perm[kk + k3 + perm[ll + l3]]]] % 32;
-            int gi4 = perm[
-                ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
-
-            // Calculate the contribution from the five corners
-            float t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
-            if (t0 < 0) n0 = 0.0f;
-            else
+            // The first corner has all coordinate offsets = 0
+            skewedOffsets[0] = Vector4Int.zero;
+            // Second to fourth corners
+            for (int i = 1; i < 4; i++)
             {
-                t0 *= t0;
-                n0 = t0 * t0 * Dot(gi0, x0, y0, z0, w0);
+                skewedOffsets[i].x = simplex[c].x >= 4 - i ? 1 : 0;
+                skewedOffsets[i].y = simplex[c].y >= 4 - i ? 1 : 0;
+                skewedOffsets[i].z = simplex[c].z >= 4 - i ? 1 : 0;
+                skewedOffsets[i].w = simplex[c].w >= 4 - i ? 1 : 0;
+            }
+            // The fifth corner has all coordinate offsets = 1
+            skewedOffsets[0] = Vector4Int.one;
+
+            // Second to fifth corners in (x,y,z,w) coords
+            for (int i = 1; i < 5; i++)
+            {
+                float unskewOffset = unskew4D * i;
+                corners[i] = corners[0] - skewedOffsets[i];
+                corners[i].x += unskewOffset;
+                corners[i].y += unskewOffset;
+                corners[i].z += unskewOffset;
+                corners[i].w += unskewOffset;
             }
 
-            float t1 = 0.6f - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
-            if (t1 < 0) n1 = 0.0f;
-            else
+            skewedCell.x &= 255;
+            skewedCell.y &= 255;
+            skewedCell.z &= 255;
+            skewedCell.w &= 255;
+
+            // Sum of noise contributions from the five corners
+            float noise = 0.0f;
+
+            // Add up the contribution from the five corners
+            for (int i = 0; i < 5; i++)
             {
-                t1 *= t1;
-                n1 = t1 * t1 * Dot(gi1, x1, y1, z1, w1);
+                float t = 0.6f - corners[i].x * corners[i].x -
+                                 corners[i].y * corners[i].y -
+                                 corners[i].z * corners[i].z -
+                                 corners[i].w * corners[i].w;
+                if (t >= 0.0f)
+                {
+                    // Corner's hashed gradient index
+                    int gi = perm[
+                        skewedCell.x + skewedOffsets[i].x + perm[
+                            skewedCell.y + skewedOffsets[i].y + perm[
+                                skewedCell.z + skewedOffsets[i].z + perm[
+                                    skewedCell.w + skewedOffsets[i].w]]]] % 12;
+                    t *= t;
+                    noise += t * t * Vector4.Dot(grad4[gi], corners[i]);
+                }
             }
 
-            float t2 = 0.6f - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
-            if (t2 < 0) n2 = 0.0f;
-            else
-            {
-                t2 *= t2;
-                n2 = t2 * t2 * Dot(gi2, x2, y2, z2, w2);
-            }
-
-            float t3 = 0.6f - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
-            if (t3 < 0) n3 = 0.0f;
-            else
-            {
-                t3 *= t3;
-                n3 = t3 * t3 * Dot(gi3, x3, y3, z3, w3);
-            }
-
-            float t4 = 0.6f - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
-            if (t4 < 0) n4 = 0.0f;
-            else
-            {
-                t4 *= t4;
-                n4 = t4 * t4 * Dot(gi4, x4, y4, z4, w4);
-            }
-
-            // Sum up and scale the result to cover the range [0,1]
-            return 13.5f * (n0 + n1 + n2 + n3 + n4) + 0.5f;
+            // Scale the result to cover the range [0,1]
+            return 13.5f * noise + 0.5f;
         }
     }
 }
