@@ -40,8 +40,25 @@ namespace WorldMapGen
         protected List<Vector2> oceanCoords;
 
         // Procedurally generate a map, storing it in the given tilemap
-        public virtual void GenerateMap(Tilemap map)
+        // Return the random seed used for generation
+        public virtual int GenerateMap(Tilemap map)
         {
+            // Store the existing random state
+            Random.State oldState = Random.state;
+            // Reinitialise the random state for the generator
+            int randomSeed;
+            if (parameters.CustomSeed)
+            {
+                // User-specified seed
+                randomSeed = parameters.Seed;
+            }
+            else
+            {
+                // Seed from system time
+                randomSeed = System.Environment.TickCount;
+            }
+            Random.InitState(randomSeed);
+
             map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
             scaledSize = ScaleCoords(parameters.Width, parameters.Height);
@@ -56,6 +73,11 @@ namespace WorldMapGen
             currentMap.RefreshAllTiles();
             currentMap = null;
             oceanCoords.Clear();
+
+            // Restore the random state outside the generator
+            Random.state = oldState;
+
+            return randomSeed;
         }
 
         // Create all tile objects in the map

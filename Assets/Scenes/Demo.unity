@@ -246,8 +246,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parameters:
-    customSeed: 0
-    seed: 0
+    customSeed: 1
+    seed: 192887968
     width: 100
     height: 65
     tileScale: {x: 200, y: 200}
