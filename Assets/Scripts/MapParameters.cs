@@ -54,6 +54,7 @@ namespace WorldMapGen
 
         // Approximate portion (0-1) of the world that is below sea level
         [SerializeField]
+        [Range(0.0f, 1.0f)]
         protected float oceanCoverage;
         public float OceanCoverage
         {
@@ -110,6 +111,7 @@ namespace WorldMapGen
 
         // A latitude (in degrees) where pressure is high
         [SerializeField]
+        [Range(0.0f, 90.0f)]
         protected float highPressureLatitude;
         public float HighPressureLatitude
         {
@@ -119,6 +121,7 @@ namespace WorldMapGen
 
         // A latitude (in degrees) where pressure is low
         [SerializeField]
+        [Range(0.0f, 90.0f)]
         protected float lowPressureLatitude;
         public float LowPressureLatitude
         {
@@ -248,6 +251,61 @@ namespace WorldMapGen
         {
             get { return invalidSprite; }
             set { invalidSprite = value; }
+        }
+
+        // Restrict parameters to valid values
+        public virtual void Validate()
+        {
+            // Map size must be positive
+            width = Mathf.Clamp(width, 1, int.MaxValue);
+            height = Mathf.Clamp(height, 1, int.MaxValue);
+
+            // Tile scale must be positive and finite
+            tileScale.x = Mathf.Clamp(
+                tileScale.x, float.Epsilon, float.MaxValue);
+            tileScale.y = Mathf.Clamp(
+                tileScale.y, float.Epsilon, float.MaxValue);
+
+            // Ocean coverage must be at least 0 (all land) and less than 1
+            oceanCoverage = Mathf.Clamp(
+                oceanCoverage, 0.0f, 1.0f - 1.0f / (width * height));
+
+            // High/low pressure latitudes must be from 0 to 90°
+            highPressureLatitude = Mathf.Clamp(
+                highPressureLatitude, 0.0f, 90.0f);
+            // The low pressure latitude is also no less than the high pressure
+            // latitude
+            lowPressureLatitude = Mathf.Clamp(
+                lowPressureLatitude, highPressureLatitude, 90.0f);
+
+            // The rainfall evenness variables must not be 0 to avoid divide by
+            // 0
+            // Because they are eventually squared, there is no need to allow
+            // negative values
+            equatorRainfallEvenness = Mathf.Clamp(
+                equatorRainfallEvenness, float.Epsilon,
+                float.PositiveInfinity);
+            midLatitudeRainfallEvenness = Mathf.Clamp(
+                midLatitudeRainfallEvenness, float.Epsilon,
+                float.PositiveInfinity);
+
+            // e-folding distance must not be 0 to avoid divide by 0
+            if (rainfallOceanEFoldingDistance == 0.0f)
+                rainfallOceanEFoldingDistance = float.Epsilon;
+
+            // If saturationPressureConst2 is in the range between
+            // poleTemperature and equatorTemperature, divide by 0 is possible
+            float lowTemperature = Mathf.Min(
+                equatorTemperature, poleTemperature);
+            float highTemperature = Mathf.Max(
+                equatorTemperature, poleTemperature);
+            if (saturationPressureConst2 >= lowTemperature &&
+                saturationPressureConst2 <= highTemperature)
+            {
+                // Set value just above the range
+                saturationPressureConst2 =
+                    Globals.IncrementFloat(highTemperature);
+            }
         }
     }
 }

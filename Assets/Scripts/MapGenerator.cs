@@ -16,10 +16,6 @@ namespace WorldMapGen
 
         // Maximum X and Y offset for heightmap noise
         protected const float noiseMaxOffset = 1000.0f;
-        // Difference between temperatures in °C and K
-        protected const float celsiusToKelvin = 273.15f;
-        // Number of metres in a kilometre
-        protected const float kmToM = 1000.0f;
 
         // User-specified parameters for map generation
         [SerializeField]
@@ -311,6 +307,11 @@ namespace WorldMapGen
                     {
                         currentTile.Temperature = latitudeTemperature;
                     }
+
+                    // Restrict temperature to above absolute zero
+                    currentTile.Temperature = Mathf.Clamp(
+                        currentTile.Temperature, Globals.MinTemperature,
+                        Mathf.Infinity);
                 }
             }
         }
@@ -511,7 +512,7 @@ namespace WorldMapGen
             float elevation, float prevElevation,
             float temperature, float seaLevelTemperature)
         {
-            temperature += celsiusToKelvin;
+            temperature += Globals.CelsiusToKelvin;
 
             return
                 parameters.CondensationRateMultiplier *
@@ -524,7 +525,7 @@ namespace WorldMapGen
                     parameters.TemperatureLapseRate /
                     (temperature * temperature)) *
                 (elevation - prevElevation) /
-                (parameters.TileScale.x * kmToM);
+                (parameters.TileScale.x * Globals.KmToM);
         }
 
         // Set an appropriate tile type and its sprite for each tile
@@ -564,6 +565,12 @@ namespace WorldMapGen
                     }
                 }
             }
+        }
+
+        protected virtual void OnValidate()
+        {
+            // Validate the parameters
+            parameters.Validate();
         }
     }
 }

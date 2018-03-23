@@ -247,14 +247,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameters:
     customSeed: 1
-    seed: 192887968
+    seed: 306553875
     width: 100
     height: 65
     tileScale: {x: 200, y: 200}
     oceanCoverage: 0.71
     rotateWest: 0
-    wrapX: 1
-    wrapY: 1
+    wrapX: 0
+    wrapY: 0
     noiseScale: 0.3
     tileTypes:
     - name: Ocean
