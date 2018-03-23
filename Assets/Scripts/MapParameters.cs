@@ -270,6 +270,9 @@ namespace WorldMapGen
             oceanCoverage = Mathf.Clamp(
                 oceanCoverage, 0.0f, 1.0f - 1.0f / (width * height));
 
+            // Validate all tile types
+            foreach (TileType type in tileTypes) type.Validate();
+
             // High/low pressure latitudes must be from 0 to 90°
             highPressureLatitude = Mathf.Clamp(
                 highPressureLatitude, 0.0f, 90.0f);

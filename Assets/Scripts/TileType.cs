@@ -29,6 +29,12 @@ namespace WorldMapGen
         {
             return value >= min && value <= max;
         }
+
+        // Restrict max to be at least min
+        public void Validate()
+        {
+            max = Mathf.Clamp(max, min, float.PositiveInfinity);
+        }
     }
 
     // A type of tile and parameters that specify where it can be generated
@@ -126,10 +132,18 @@ namespace WorldMapGen
         // Return whether the tile's climate is within this type's ranges
         public virtual bool ValuesInRanges(Tile tile)
         {
-            return 
+            return
                 ValueInAnyRange(elevation, tile.Elevation) &&
                 ValueInAnyRange(temperature, tile.Temperature) &&
                 ValueInAnyRange(precipitation, tile.Precipitation);
+        }
+
+        // Validate all ranges
+        public virtual void Validate()
+        {
+            foreach (Range range in elevation) range.Validate();
+            foreach (Range range in temperature) range.Validate();
+            foreach (Range range in precipitation) range.Validate();
         }
     }
 }
