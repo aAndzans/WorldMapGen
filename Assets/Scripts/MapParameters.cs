@@ -281,6 +281,12 @@ namespace WorldMapGen
             lowPressureLatitude = Mathf.Clamp(
                 lowPressureLatitude, highPressureLatitude, 90.0f);
 
+            // Temperatures must be above absolute zero and finite
+            equatorTemperature = Mathf.Clamp(
+                equatorTemperature, Globals.MinTemperature, float.MaxValue);
+            poleTemperature = Mathf.Clamp(
+                poleTemperature, Globals.MinTemperature, float.MaxValue);
+
             // The rainfall evenness variables must not be 0 to avoid divide by
             // 0
             // Because they are eventually squared, there is no need to allow
