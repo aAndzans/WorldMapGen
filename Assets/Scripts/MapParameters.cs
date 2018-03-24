@@ -342,6 +342,12 @@ namespace WorldMapGen
             poleTemperature = Mathf.Clamp(
                 poleTemperature, Globals.MinTemperature, float.MaxValue);
 
+            // Rainfall must not be negative
+            equatorRainfall = Mathf.Clamp(
+                equatorRainfall, 0.0f, float.PositiveInfinity);
+            midLatitudeRainfall = Mathf.Clamp(
+                midLatitudeRainfall, 0.0f, float.PositiveInfinity);
+
             // The rainfall evenness variables must not be 0 to avoid divide by
             // 0
             // Because they are eventually squared, there is no need to allow
