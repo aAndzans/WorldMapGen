@@ -6,6 +6,23 @@ namespace WorldMapGen
     [System.Serializable]
     public class MapParameters
     {
+        // Attribute that causes a property to show a warning when a condition
+        // is met
+        public class WarningAttribute : PropertyAttribute
+        {
+            // Name of the function that is the condition for the warning (must
+            // return bool and take no parameters)
+            public string ConditionFunction { get; private set; }
+            // The text of the warning message
+            public string Message { get; private set; }
+
+            public WarningAttribute(string conditionFunction, string message)
+            {
+                ConditionFunction = conditionFunction;
+                Message = message;
+            }
+        }
+
         // If true, use a custom random seed
         [SerializeField]
         protected bool customSeed;
@@ -140,20 +157,37 @@ namespace WorldMapGen
 
         // Temperature at sea level at the poles (in °C)
         [SerializeField]
+        [Warning("PoleIsWarmerThanEquator",
+                 "Pole temperature is greater than equator temperature.")]
         protected float poleTemperature;
         public float PoleTemperature
         {
             get { return poleTemperature; }
             set { poleTemperature = value; }
         }
+        // Return true if pole temperature is greater than equator temperature
+        public virtual bool PoleIsWarmerThanEquator()
+        {
+            return poleTemperature > equatorTemperature;
+        }
 
         // Rate at which temperature decreases with elevation (in K/m)
         [SerializeField]
+        [Warning(
+            "TemperatureLapseRateIsNegative",
+            "Temperature lapse rate is negative. This will cause the " +
+            "relationship between elevation and temperature to be the " +
+            "inverse of what it is in the real world.")]
         protected float temperatureLapseRate;
         public float TemperatureLapseRate
         {
             get { return temperatureLapseRate; }
             set { temperatureLapseRate = value; }
+        }
+        // Return true if temperature lapse rate is negative
+        public virtual bool TemperatureLapseRateIsNegative()
+        {
+            return temperatureLapseRate < 0.0f;
         }
 
         // Maximum value of the term corresponding to the equator in the
@@ -198,21 +232,42 @@ namespace WorldMapGen
 
         // Distance from the ocean at which precpitation decreases e times
         [SerializeField]
+        [Warning(
+            "RainfallOceanEFoldingDistanceIsNegative",
+            "Precipitation e-folding distance from the ocean is negative. " +
+            "This will cause the relationship between distance from the " +
+            "ocean and precipitation to be the inverse of what it is in the " +
+            "real world.")]
         protected float rainfallOceanEFoldingDistance;
         public float RainfallOceanEFoldingDistance
         {
             get { return rainfallOceanEFoldingDistance; }
             set { rainfallOceanEFoldingDistance = value; }
         }
+        // Return true if the e-folding distance is negative
+        public virtual bool RainfallOceanEFoldingDistanceIsNegative()
+        {
+            return rainfallOceanEFoldingDistance < 0.0f;
+        }
 
         // Multiplier used in the orographic precipitation formula
         // Combines several different constants
         [SerializeField]
+        [Warning(
+            "CondensationRateMultiplierIsNegative",
+            "Condensation rate multiplier is negative. This will cause the " +
+            "effects of orographic precipitation to be the inverse of what " +
+            "they are in the real world.")]
         protected float condensationRateMultiplier;
         public float CondensationRateMultiplier
         {
             get { return condensationRateMultiplier; }
             set { condensationRateMultiplier = value; }
+        }
+        // Return true if the condensation rate multiplier is negative
+        public virtual bool CondensationRateMultiplierIsNegative()
+        {
+            return condensationRateMultiplier < 0.0f;
         }
 
         // Multiplier used in the exponent in the saturation vapour pressure
