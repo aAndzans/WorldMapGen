@@ -30,10 +30,13 @@ namespace WorldMapGen
             return value >= min && value <= max;
         }
 
-        // Restrict max to be at least min
-        public void Validate()
+        // Restrict max to be at least min and restrict the range within
+        // [clampMin, clampMax]
+        public void Validate(float clampMin = -Mathf.Infinity,
+                             float clampMax = Mathf.Infinity)
         {
-            max = Mathf.Clamp(max, min, float.PositiveInfinity);
+            min = Mathf.Clamp(min, clampMin, clampMax);
+            max = Mathf.Clamp(max, min, clampMax);
         }
     }
 
@@ -143,7 +146,7 @@ namespace WorldMapGen
         {
             foreach (Range range in elevation) range.Validate();
             foreach (Range range in temperature) range.Validate();
-            foreach (Range range in precipitation) range.Validate();
+            foreach (Range range in precipitation) range.Validate(0.0f);
         }
     }
 }
