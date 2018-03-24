@@ -144,9 +144,12 @@ namespace WorldMapGen
         // Validate all ranges
         public virtual void Validate()
         {
-            foreach (Range range in elevation) range.Validate();
-            foreach (Range range in temperature) range.Validate();
-            foreach (Range range in precipitation) range.Validate(0.0f);
+            for (int i = 0; i < elevation.Length; i++)
+                elevation[i].Validate();
+            for (int i = 0; i < temperature.Length; i++)
+                temperature[i].Validate();
+            for (int i = 0; i < precipitation.Length; i++)
+                precipitation[i].Validate(0.0f);
         }
     }
 }
