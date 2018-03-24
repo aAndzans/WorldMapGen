@@ -1,4 +1,6 @@
-﻿namespace WorldMapGen
+﻿using UnityEngine;
+
+namespace WorldMapGen
 {
     // An individual tile in the generated map
     public class Tile : UnityEngine.Tilemaps.Tile
@@ -13,6 +15,12 @@
         public float Temperature { get; set; }
 
         // Annual average precipitation in mm
-        public float Precipitation { get; set; }
+        protected float precipitation;
+        public float Precipitation
+        {
+            get { return precipitation; }
+            // Limit precipitation to non-negative values
+            set { precipitation = Mathf.Clamp(value, 0.0f, Mathf.Infinity); }
+        }
     }
 }
