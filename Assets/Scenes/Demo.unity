@@ -265,7 +265,7 @@ MonoBehaviour:
         min: -10
         max: Infinity
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: 71be3ee862653ed479fd098c26464343, type: 3}
     - name: Coast
@@ -276,7 +276,7 @@ MonoBehaviour:
         min: -10
         max: Infinity
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: bc714345b538c9b4b98f9d6d2eeacaca, type: 3}
     - name: Ice
@@ -287,7 +287,7 @@ MonoBehaviour:
         min: -Infinity
         max: -5
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: ef10ae3ab0f36984095812badb5dd26f, type: 3}
     - name: Snow
@@ -298,7 +298,7 @@ MonoBehaviour:
         min: -Infinity
         max: -10
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: c865663ccf4c13347bb69c2e047fc41f, type: 3}
     - name: Snow Hill
@@ -309,7 +309,7 @@ MonoBehaviour:
         min: -Infinity
         max: -10
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: 8cb3e9b181bdb8d4d9021a32247ff2de, type: 3}
     - name: Tundra
@@ -320,7 +320,7 @@ MonoBehaviour:
         min: -15
         max: 5
       precipitation:
-        min: 0
+        min: -Infinity
         max: 200
       sprite: {fileID: 21300000, guid: 33476921762de294f862e037e2461649, type: 3}
     - name: Tundra Hill
@@ -331,7 +331,7 @@ MonoBehaviour:
         min: -15
         max: 5
       precipitation:
-        min: 0
+        min: -Infinity
         max: 200
       sprite: {fileID: 21300000, guid: 1ca5e59e689783e45be8afc3226eb7b2, type: 3}
     - name: Grass
@@ -430,7 +430,7 @@ MonoBehaviour:
         min: 0
         max: Infinity
       precipitation:
-        min: 0
+        min: -Infinity
         max: 100
       sprite: {fileID: 21300000, guid: 2b2938e4f0b02794682c15fe2c8b2f3d, type: 3}
     - name: Desert Hill
@@ -441,7 +441,7 @@ MonoBehaviour:
         min: 0
         max: Infinity
       precipitation:
-        min: 0
+        min: -Infinity
         max: 100
       sprite: {fileID: 21300000, guid: 1ad61fb89dac0b44aa4ddb39d8cee342, type: 3}
     - name: Jungle
@@ -474,7 +474,7 @@ MonoBehaviour:
         min: -Infinity
         max: Infinity
       precipitation:
-        min: 0
+        min: -Infinity
         max: Infinity
       sprite: {fileID: 21300000, guid: 63da84ca5a69fd64f858855aaad3dde4, type: 3}
     highPressureLatitude: 30

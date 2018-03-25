@@ -131,8 +131,7 @@ namespace WorldMapGen
             // value determines actual elevation
             elevation.Validate(-Mathf.Infinity, float.MaxValue);
             temperature.Validate();
-            // Precipitation must not be negative
-            precipitation.Validate(0.0f);
+            precipitation.Validate();
         }
     }
 }
