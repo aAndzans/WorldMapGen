@@ -304,11 +304,6 @@ namespace WorldMapGen
                     {
                         currentTile.Temperature = latitudeTemperature;
                     }
-
-                    // Restrict temperature to above absolute zero
-                    currentTile.Temperature = Mathf.Clamp(
-                        currentTile.Temperature, Globals.MinTemperature,
-                        Mathf.Infinity);
                 }
             }
         }

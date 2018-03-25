@@ -12,7 +12,17 @@ namespace WorldMapGen
         public float Elevation { get; set; }
 
         // Annual average temperature in °C
-        public float Temperature { get; set; }
+        protected float temperature;
+        public float Temperature
+        {
+            get { return temperature; }
+            // Limit temperature above absolute zero
+            set
+            {
+                temperature = Mathf.Clamp(
+                    value, Globals.MinTemperature, Mathf.Infinity);
+            }
+        }
 
         // Annual average precipitation in mm
         protected float precipitation;
