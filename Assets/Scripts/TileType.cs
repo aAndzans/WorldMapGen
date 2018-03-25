@@ -53,30 +53,40 @@ namespace WorldMapGen
             set { name = value; }
         }
 
-        // Ranges of elevations (in m above sea level) where the type may
-        // appear
+        // Range of elevations (in m above sea level) where the type may appear
         [SerializeField]
-        protected Range[] elevation;
-        public Range[] Elevation
+        [MapParameters.Warning(
+            "ElevationIsPositiveAndNegative",
+            "This type includes both positive and negative elevations. This " +
+            "may cause unrealistic results because the generator treats " +
+            "positive elevations as land and negative elevations as ocean.")]
+        protected Range elevation;
+        public Range Elevation
         {
             get { return elevation; }
             set { elevation = value; }
         }
+        // If this type's elevation range includes both positive and negative
+        // values, return true
+        public virtual bool ElevationIsPositiveAndNegative()
+        {
+            return elevation.Min < 0.0f && elevation.Max > 0.0f;
+        }
 
-        // Ranges of temperatures (in °C) where the type may appear
+        // Range of temperatures (in °C) where the type may appear
         [SerializeField]
-        protected Range[] temperature;
-        public Range[] Temperature
+        protected Range temperature;
+        public Range Temperature
         {
             get { return temperature; }
             set { temperature = value; }
         }
 
-        // Ranges of precipitation amounts (in mm/year) where the type may
+        // Range of precipitation amounts (in mm/year) where the type may
         // appear
         [SerializeField]
-        protected Range[] precipitation;
-        public Range[] Precipitation
+        protected Range precipitation;
+        public Range Precipitation
         {
             get { return precipitation; }
             set { precipitation = value; }
@@ -89,33 +99,6 @@ namespace WorldMapGen
         {
             get { return sprite; }
             set { sprite = value; }
-        }
-
-        // If this type's elevation ranges include both positive and negative
-        // values, return false
-        public virtual bool ElevationIsValid()
-        {
-            bool positive = false;  // Is the highest max value positive?
-            bool negative = false;  // Is the lowest min value negative?
-
-            foreach (Range range in elevation)
-            {
-                if (range.Min < 0.0f)
-                {
-                    negative = true;
-                }
-
-                if (range.Max > 0.0f)
-                {
-                    positive = true;
-                }
-
-                if (positive && negative)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         // Return whether the given value is within any of the ranges in the
@@ -136,9 +119,9 @@ namespace WorldMapGen
         public virtual bool ValuesInRanges(Tile tile)
         {
             return
-                ValueInAnyRange(elevation, tile.Elevation) &&
-                ValueInAnyRange(temperature, tile.Temperature) &&
-                ValueInAnyRange(precipitation, tile.Precipitation);
+                elevation.IsInRange(tile.Elevation) &&
+                temperature.IsInRange(tile.Temperature) &&
+                precipitation.IsInRange(tile.Precipitation);
         }
 
         // Validate all ranges
@@ -146,13 +129,10 @@ namespace WorldMapGen
         {
             // Elevation must not be positive infinity because the highest
             // value determines actual elevation
-            for (int i = 0; i < elevation.Length; i++)
-                elevation[i].Validate(-Mathf.Infinity, float.MaxValue);
-            for (int i = 0; i < temperature.Length; i++)
-                temperature[i].Validate();
+            elevation.Validate(-Mathf.Infinity, float.MaxValue);
+            temperature.Validate();
             // Precipitation must not be negative
-            for (int i = 0; i < precipitation.Length; i++)
-                precipitation[i].Validate(0.0f);
+            precipitation.Validate(0.0f);
         }
     }
 }

@@ -10,6 +10,9 @@ namespace WorldMapGen
     [CustomPropertyDrawer(typeof(MapParameters.WarningAttribute))]
     public class WarningDrawer : PropertyDrawer
     {
+        // Vertical padding for the warning
+        private const float padding = 12.0f;
+
         // Should the warning be displayed?
         private bool showWarning = false;
         // The attribute corresponding to this drawer
@@ -22,12 +25,23 @@ namespace WorldMapGen
             // height
             float height = EditorGUI.GetPropertyHeight(property, true);
 
+            // Get the object that the property belongs to
+            object parent = GetParent(property);
+
+            // Cast the attribute
+            warning = attribute as MapParameters.WarningAttribute;
+
+            // Check if the warning should be drawn
+            MethodInfo condition = parent.GetType().GetMethod(
+                warning.ConditionFunction);
+            showWarning = (bool)condition.Invoke(parent, null);
+
             // If warning is displayed, add the warning's height
             if (showWarning)
             {
                 height += GUI.skin.GetStyle("helpbox").CalcHeight(
                     new GUIContent(warning.Message),
-                    EditorGUIUtility.currentViewWidth);
+                    EditorGUIUtility.currentViewWidth) + padding;
             }
 
             return height;
@@ -38,21 +52,13 @@ namespace WorldMapGen
         {
             // Draw the property
             EditorGUI.PropertyField(position, property, label, true);
-
-            // Cast the attribute
-            warning = attribute as MapParameters.WarningAttribute;
-            // Get the object that the property belongs to
-            object parent = GetParent(property);
-
-            // If the warning condition is true, draw the warning
-            MethodInfo condition = parent.GetType().GetMethod(
-                warning.ConditionFunction);
-            showWarning = (bool)condition.Invoke(parent, null);
+            
             if (showWarning)
             {
                 // Offset Y for the warning
                 position.yMin += EditorGUI.GetPropertyHeight(property, true);
 
+                // Draw the warning
                 EditorGUI.HelpBox(
                     position, warning.Message, MessageType.Warning);
             }

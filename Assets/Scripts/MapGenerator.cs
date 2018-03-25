@@ -206,12 +206,9 @@ namespace WorldMapGen
             float elevationScale = -Mathf.Infinity;
             foreach (TileType type in parameters.TileTypes)
             {
-                foreach (Range range in type.Elevation)
+                if (type.Elevation.Max > elevationScale)
                 {
-                    if (range.Max > elevationScale)
-                    {
-                        elevationScale = range.Max;
-                    }
+                    elevationScale = type.Elevation.Max;
                 }
             }
             // Also scale based on maximum value of unscaled heightmap

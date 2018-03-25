@@ -259,223 +259,223 @@ MonoBehaviour:
     tileTypes:
     - name: Ocean
       elevation:
-      - min: -100000
+        min: -Infinity
         max: -1500
       temperature:
-      - min: -10
-        max: 10000
+        min: -10
+        max: Infinity
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: 71be3ee862653ed479fd098c26464343, type: 3}
     - name: Coast
       elevation:
-      - min: -1500
+        min: -1500
         max: 0
       temperature:
-      - min: -10
-        max: 10000
+        min: -10
+        max: Infinity
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: bc714345b538c9b4b98f9d6d2eeacaca, type: 3}
     - name: Ice
       elevation:
-      - min: -100000
+        min: -Infinity
         max: 0
       temperature:
-      - min: -10000
+        min: -Infinity
         max: -5
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: ef10ae3ab0f36984095812badb5dd26f, type: 3}
     - name: Snow
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: -10000
+        min: -Infinity
         max: -10
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: c865663ccf4c13347bb69c2e047fc41f, type: 3}
     - name: Snow Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: -10000
+        min: -Infinity
         max: -10
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: 8cb3e9b181bdb8d4d9021a32247ff2de, type: 3}
     - name: Tundra
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: -15
+        min: -15
         max: 5
       precipitation:
-      - min: 0
+        min: 0
         max: 200
       sprite: {fileID: 21300000, guid: 33476921762de294f862e037e2461649, type: 3}
     - name: Tundra Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: -15
+        min: -15
         max: 5
       precipitation:
-      - min: 0
+        min: 0
         max: 200
       sprite: {fileID: 21300000, guid: 1ca5e59e689783e45be8afc3226eb7b2, type: 3}
     - name: Grass
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: -5
+        min: -5
         max: 20
       precipitation:
-      - min: 50
+        min: 50
         max: 250
       sprite: {fileID: 21300000, guid: 073466a366a863e4ba15a40f32b045eb, type: 3}
     - name: Grass Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: -5
+        min: -5
         max: 20
       precipitation:
-      - min: 50
+        min: 50
         max: 250
       sprite: {fileID: 21300000, guid: c31053d9feab4f5448dc30718298a9a2, type: 3}
     - name: Plain
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: 15
-        max: 10000
+        min: 15
+        max: Infinity
       precipitation:
-      - min: 50
+        min: 50
         max: 250
       sprite: {fileID: 21300000, guid: e881dc9aec69fff42aab9f6e4e58c602, type: 3}
     - name: Plain Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: 15
-        max: 10000
+        min: 15
+        max: Infinity
       precipitation:
-      - min: 50
+        min: 50
         max: 250
       sprite: {fileID: 21300000, guid: 458c909119a6a9d429a05139bc87dbc2, type: 3}
     - name: Coniferous
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: -10
+        min: -10
         max: 5
       precipitation:
-      - min: 200
-        max: 10000
+        min: 200
+        max: Infinity
       sprite: {fileID: 21300000, guid: 05a6ea641055c9049a7b78f3ccbd3014, type: 3}
     - name: Coniferous Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: -10
+        min: -10
         max: 5
       precipitation:
-      - min: 200
-        max: 10000
+        min: 200
+        max: Infinity
       sprite: {fileID: 21300000, guid: 75ecf843a3cadf94881da55885649133, type: 3}
     - name: Deciduous
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: 4
+        min: 4
         max: 20
       precipitation:
-      - min: 200
-        max: 10000
+        min: 200
+        max: Infinity
       sprite: {fileID: 21300000, guid: 478d73449d2941e458cb3c23be7bb1e5, type: 3}
     - name: Deciduous Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: 4
+        min: 4
         max: 20
       precipitation:
-      - min: 200
-        max: 10000
+        min: 200
+        max: Infinity
       sprite: {fileID: 21300000, guid: 2030db7ce94c70244813610b359b02ad, type: 3}
     - name: Desert
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       precipitation:
-      - min: 0
+        min: 0
         max: 100
       sprite: {fileID: 21300000, guid: 2b2938e4f0b02794682c15fe2c8b2f3d, type: 3}
     - name: Desert Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       precipitation:
-      - min: 0
+        min: 0
         max: 100
       sprite: {fileID: 21300000, guid: 1ad61fb89dac0b44aa4ddb39d8cee342, type: 3}
     - name: Jungle
       elevation:
-      - min: 0
+        min: 0
         max: 4000
       temperature:
-      - min: 20
-        max: 10000
+        min: 20
+        max: Infinity
       precipitation:
-      - min: 240
+        min: 240
         max: 10000
       sprite: {fileID: 21300000, guid: 9402715d730fa0541bb0e2b4ad0b3900, type: 3}
     - name: Jungle Hill
       elevation:
-      - min: 3000
+        min: 3000
         max: 6000
       temperature:
-      - min: 20
-        max: 10000
+        min: 20
+        max: Infinity
       precipitation:
-      - min: 240
-        max: 10000
+        min: 240
+        max: Infinity
       sprite: {fileID: 21300000, guid: fc443cc5531c3e74d904664789ec0650, type: 3}
     - name: Mountain
       elevation:
-      - min: 6000
+        min: 6000
         max: 9000
       temperature:
-      - min: -10000
-        max: 10000
+        min: -Infinity
+        max: Infinity
       precipitation:
-      - min: 0
-        max: 10000
+        min: 0
+        max: Infinity
       sprite: {fileID: 21300000, guid: 63da84ca5a69fd64f858855aaad3dde4, type: 3}
     highPressureLatitude: 30
     lowPressureLatitude: 60
