@@ -7,7 +7,7 @@ using UnityEditor;
 namespace WorldMapGen
 {
     // Class to draw warnings for map generator parameters
-    [CustomPropertyDrawer(typeof(MapParameters.WarningAttribute))]
+    [CustomPropertyDrawer(typeof(WarningAttribute))]
     public class WarningDrawer : PropertyDrawer
     {
         // Vertical padding for the warning
@@ -16,7 +16,7 @@ namespace WorldMapGen
         // Should the warning be displayed?
         private bool showWarning = false;
         // The attribute corresponding to this drawer
-        private MapParameters.WarningAttribute warning;
+        private WarningAttribute warning;
 
         public override float GetPropertyHeight(
             SerializedProperty property, GUIContent label)
@@ -29,7 +29,7 @@ namespace WorldMapGen
             object parent = GetParent(property);
 
             // Cast the attribute
-            warning = attribute as MapParameters.WarningAttribute;
+            warning = attribute as WarningAttribute;
 
             // Check if the warning should be drawn
             MethodInfo condition = parent.GetType().GetMethod(

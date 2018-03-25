@@ -288,6 +288,7 @@
     <Compile Include="Assets\Scripts\SimplexNoise.cs" />
     <Compile Include="Assets\Scripts\Tile.cs" />
     <Compile Include="Assets\Scripts\TileType.cs" />
+    <Compile Include="Assets\Scripts\WarningAttribute.cs" />
     <Compile Include="Assets\Scripts\WorldMapGenDemo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

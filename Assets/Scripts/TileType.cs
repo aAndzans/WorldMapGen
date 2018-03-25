@@ -55,7 +55,7 @@ namespace WorldMapGen
 
         // Range of elevations (in m above sea level) where the type may appear
         [SerializeField]
-        [MapParameters.Warning(
+        [Warning(
             "ElevationIsPositiveAndNegative",
             "This type includes both positive and negative elevations. This " +
             "may cause unrealistic results because the generator treats " +
