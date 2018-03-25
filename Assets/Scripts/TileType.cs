@@ -144,10 +144,13 @@ namespace WorldMapGen
         // Validate all ranges
         public virtual void Validate()
         {
+            // Elevation must not be positive infinity because the highest
+            // value determines actual elevation
             for (int i = 0; i < elevation.Length; i++)
-                elevation[i].Validate();
+                elevation[i].Validate(-Mathf.Infinity, float.MaxValue);
             for (int i = 0; i < temperature.Length; i++)
                 temperature[i].Validate();
+            // Precipitation must not be negative
             for (int i = 0; i < precipitation.Length; i++)
                 precipitation[i].Validate(0.0f);
         }
