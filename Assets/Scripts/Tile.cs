@@ -20,7 +20,7 @@ namespace WorldMapGen
             set
             {
                 temperature = Mathf.Clamp(
-                    value, Globals.MinTemperature, Mathf.Infinity);
+                    value, Globals.MinTemperature, float.PositiveInfinity);
             }
         }
 
@@ -30,7 +30,11 @@ namespace WorldMapGen
         {
             get { return precipitation; }
             // Limit precipitation to non-negative values
-            set { precipitation = Mathf.Clamp(value, 0.0f, Mathf.Infinity); }
+            set
+            {
+                precipitation = Mathf.Clamp(
+                    value, 0.0f, float.PositiveInfinity);
+            }
         }
     }
 }

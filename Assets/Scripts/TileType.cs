@@ -32,8 +32,8 @@ namespace WorldMapGen
 
         // Restrict max to be at least min and restrict the range within
         // [clampMin, clampMax]
-        public void Validate(float clampMin = -Mathf.Infinity,
-                             float clampMax = Mathf.Infinity)
+        public void Validate(float clampMin = float.NegativeInfinity,
+                             float clampMax = float.PositiveInfinity)
         {
             min = Mathf.Clamp(min, clampMin, clampMax);
             max = Mathf.Clamp(max, min, clampMax);
@@ -129,7 +129,7 @@ namespace WorldMapGen
         {
             // Elevation must not be positive infinity because the highest
             // value determines actual elevation
-            elevation.Validate(-Mathf.Infinity, float.MaxValue);
+            elevation.Validate(float.NegativeInfinity, float.MaxValue);
             temperature.Validate();
             precipitation.Validate();
         }

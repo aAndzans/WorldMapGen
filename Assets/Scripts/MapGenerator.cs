@@ -203,7 +203,7 @@ namespace WorldMapGen
                                              parameters.OceanCoverage)];
 
             // Elevation scale based on highest elevation among all tile types
-            float elevationScale = -Mathf.Infinity;
+            float elevationScale = float.NegativeInfinity;
             foreach (TileType type in parameters.TileTypes)
             {
                 if (type.Elevation.Max > elevationScale)
@@ -458,7 +458,7 @@ namespace WorldMapGen
         // its distance to the nearest ocean tile
         protected virtual float RainfallOceanDistanceRatio(int x, int y)
         {
-            float shortestSqDist = Mathf.Infinity;
+            float shortestSqDist = float.PositiveInfinity;
             Vector2 currentTile = ScaleCoords(x, y);
 
             // Find the square distance to the nearest ocean tile
