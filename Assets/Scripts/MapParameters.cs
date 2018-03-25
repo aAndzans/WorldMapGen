@@ -6,8 +6,8 @@ namespace WorldMapGen
     [System.Serializable]
     public class MapParameters
     {
-        // If true, use a custom random seed
         [SerializeField]
+        [Tooltip("If true, use Seed as the random seed for the generator.")]
         protected bool customSeed;
         public bool CustomSeed
         {
@@ -15,9 +15,9 @@ namespace WorldMapGen
             set { customSeed = value; }
         }
 
-        // The custom random seed
-        // If customSeed is false, this is ignored
         [SerializeField]
+        [Tooltip("A custom random seed for the generator. If CustomSeed is " +
+                 "false, this is ignored.")]
         protected int seed;
         public int Seed
         {
@@ -25,8 +25,8 @@ namespace WorldMapGen
             set { seed = value; }
         }
 
-        // Number of tiles in X axis
         [SerializeField]
+        [Tooltip("Number of tiles in the X axis.")]
         protected int width;
         public int Width
         {
@@ -34,8 +34,8 @@ namespace WorldMapGen
             set { width = value; }
         }
 
-        // Number of tiles in Y axis
         [SerializeField]
+        [Tooltip("Number of tiles in the Y axis.")]
         protected int height;
         public int Height
         {
@@ -43,8 +43,8 @@ namespace WorldMapGen
             set { height = value; }
         }
 
-        // Map scale in each axis (in km/tile)
         [SerializeField]
+        [Tooltip("Kilometers per tile in each dimension.")]
         protected Vector2 tileScale;
         public Vector2 TileScale
         {
@@ -52,9 +52,9 @@ namespace WorldMapGen
             set { tileScale = value; }
         }
 
-        // Approximate portion (0-1) of the world that is below sea level
         [SerializeField]
         [Range(0.0f, 1.0f)]
+        [Tooltip("Approximate portion of the world below sea level.")]
         protected float oceanCoverage;
         public float OceanCoverage
         {
@@ -62,8 +62,9 @@ namespace WorldMapGen
             set { oceanCoverage = value; }
         }
 
-        // If true, the world rotates west (opposite the real Earth)
         [SerializeField]
+        [Tooltip("The real Earth rotates east. If this is true, the world " +
+                 "will instead rotate west, which will flip wind directions.")]
         protected bool rotateWest;
         public bool RotateWest
         {
@@ -71,8 +72,8 @@ namespace WorldMapGen
             set { rotateWest = value; }
         }
 
-        // If true, the map wraps on the X axis
         [SerializeField]
+        [Tooltip("If this is true, the map will wrap on the X axis.")]
         protected bool wrapX;
         public bool WrapX
         {
@@ -80,8 +81,8 @@ namespace WorldMapGen
             set { wrapX = value; }
         }
 
-        // If true, the map wraps on the Y axis
         [SerializeField]
+        [Tooltip("If this is true, the map will wrap on the Y axis.")]
         protected bool wrapY;
         public bool WrapY
         {
@@ -89,10 +90,11 @@ namespace WorldMapGen
             set { wrapY = value; }
         }
 
-        // Amount to scale the elevation noise function on X and Y
-        // If this is 1, the longer dimension of the map corresponds to a
-        // length of 1 in the noise function
         [SerializeField]
+        [Tooltip("Amount by which to scale the elevation noise function on " +
+                 "X and Y. If this is 1, the longer dimension of the map " +
+                 "(in kilometers) corresponds to 1 unit in the noise " +
+                 "function.")]
         protected float noiseScale;
         public float NoiseScale
         {
@@ -100,8 +102,8 @@ namespace WorldMapGen
             set { noiseScale = value; }
         }
 
-        // Every tile type that may be in the map
         [SerializeField]
+        [Tooltip("Array of all possible tile types.")]
         protected TileType[] tileTypes;
         public TileType[] TileTypes
         {
@@ -109,9 +111,11 @@ namespace WorldMapGen
             set { tileTypes = value; }
         }
 
-        // A latitude (in degrees) where pressure is high
         [SerializeField]
         [Range(0.0f, 90.0f)]
+        [Tooltip("A latitude on both sides of the equator (in degrees) " +
+                 "where pressure is high. The wind direction changes at " +
+                 "this latitude.")]
         protected float highPressureLatitude;
         public float HighPressureLatitude
         {
@@ -119,9 +123,12 @@ namespace WorldMapGen
             set { highPressureLatitude = value; }
         }
 
-        // A latitude (in degrees) where pressure is low
         [SerializeField]
         [Range(0.0f, 90.0f)]
+        [Tooltip("A latitude on both sides of the equator (in degrees) " +
+                 "where pressure is low. The wind direction changes at " +
+                 "this latitude. Precipitation is higher than at nearby " +
+                 "latitudes.")]
         protected float lowPressureLatitude;
         public float LowPressureLatitude
         {
@@ -129,8 +136,8 @@ namespace WorldMapGen
             set { lowPressureLatitude = value; }
         }
 
-        // Temperature at sea level at the equator (in °C)
         [SerializeField]
+        [Tooltip("Temperature at sea level at the equator (in °C).")]
         protected float equatorTemperature;
         public float EquatorTemperature
         {
@@ -138,8 +145,8 @@ namespace WorldMapGen
             set { equatorTemperature = value; }
         }
 
-        // Temperature at sea level at the poles (in °C)
         [SerializeField]
+        [Tooltip("Temperature at sea level at the poles (in °C).")]
         [Warning("PoleIsWarmerThanEquator",
                  "Pole temperature is greater than equator temperature.")]
         protected float poleTemperature;
@@ -154,8 +161,9 @@ namespace WorldMapGen
             return poleTemperature > equatorTemperature;
         }
 
-        // Rate at which temperature decreases with elevation (in K/m)
         [SerializeField]
+        [Tooltip("Rate at which temperature decreases with elevation (in " +
+                 "kelvins/metre).")]
         [Warning(
             "TemperatureLapseRateIsNegative",
             "Temperature lapse rate is negative. This will cause the " +
@@ -173,9 +181,9 @@ namespace WorldMapGen
             return temperatureLapseRate < 0.0f;
         }
 
-        // Maximum value of the term corresponding to the equator in the
-        // formula for precipitation based on latitude
         [SerializeField]
+        [Tooltip("When calculating precipitation based on latitude, this " +
+                 "determines precipitation at the equator.")]
         protected float equatorRainfall;
         public float EquatorRainfall
         {
@@ -183,9 +191,9 @@ namespace WorldMapGen
             set { equatorRainfall = value; }
         }
 
-        // The higher this value, the less precpitation decreases with distance
-        // from the equator
         [SerializeField]
+        [Tooltip("The higher this value, the less precpitation decreases " +
+                 "with distance from the equator.")]
         protected float equatorRainfallEvenness;
         public float EquatorRainfallEvenness
         {
@@ -193,9 +201,9 @@ namespace WorldMapGen
             set { equatorRainfallEvenness = value; }
         }
 
-        // Maximum value of the term corresponding to lowPressureLatitude in
-        // the formula for precipitation based on latitude
         [SerializeField]
+        [Tooltip("When calculating precipitation based on latitude, this " +
+                 "determines precipitation at LowPressureLatitude.")]
         protected float midLatitudeRainfall;
         public float MidLatitudeRainfall
         {
@@ -203,9 +211,9 @@ namespace WorldMapGen
             set { midLatitudeRainfall = value; }
         }
 
-        // The higher this value, the less precpitation decreases with distance
-        // from lowPressureLatitude
         [SerializeField]
+        [Tooltip("The higher this value, the less precpitation decreases " +
+                 "with distance from LowPressureLatitude.")]
         protected float midLatitudeRainfallEvenness;
         public float MidLatitudeRainfallEvenness
         {
@@ -213,8 +221,9 @@ namespace WorldMapGen
             set { midLatitudeRainfallEvenness = value; }
         }
 
-        // Distance from the ocean at which precpitation decreases e times
         [SerializeField]
+        [Tooltip("Distance from the ocean (in kilometers) at which " +
+                 "precpitation decreases e times.")]
         [Warning(
             "RainfallOceanEFoldingDistanceIsNegative",
             "Precipitation e-folding distance from the ocean is negative. " +
@@ -233,9 +242,9 @@ namespace WorldMapGen
             return rainfallOceanEFoldingDistance < 0.0f;
         }
 
-        // Multiplier used in the orographic precipitation formula
-        // Combines several different constants
         [SerializeField]
+        [Tooltip("Multiplier for orographic precipitation (the effect of " +
+                 "wind and elevation on precipitation).")]
         [Warning(
             "CondensationRateMultiplierIsNegative",
             "Condensation rate multiplier is negative. This will cause the " +
@@ -253,9 +262,9 @@ namespace WorldMapGen
             return condensationRateMultiplier < 0.0f;
         }
 
-        // Multiplier used in the exponent in the saturation vapour pressure
-        // formula
         [SerializeField]
+        [Tooltip("Constant used in the formula for saturation vapour " +
+                 "pressure. Increases orographic precipitation.")]
         protected float saturationPressureConst1;
         public float SaturationPressureConst1
         {
@@ -263,9 +272,9 @@ namespace WorldMapGen
             set { saturationPressureConst1 = value; }
         }
 
-        // Constant (in °C) added to the divisor in the exponent in the
-        // saturation vapour pressure formula
         [SerializeField]
+        [Tooltip("Constant used in the formula for saturation vapour " +
+                 "pressure. Decreases orographic precipitation.")]
         protected float saturationPressureConst2;
         public float SaturationPressureConst2
         {
@@ -273,8 +282,9 @@ namespace WorldMapGen
             set { saturationPressureConst2 = value; }
         }
 
-        // Divisor (in K) used in the moisture scale height formula
         [SerializeField]
+        [Tooltip("Constant used in the formula for moisture scale height. " +
+                 "Decreases orographic precipitation.")]
         protected float moistureScaleHeightDivisor;
         public float MoistureScaleHeightDivisor
         {
@@ -282,8 +292,10 @@ namespace WorldMapGen
             set { moistureScaleHeightDivisor = value; }
         }
 
-        // Sprite used for tiles that have no suitable tile type
         [SerializeField]
+        [Tooltip("Sprite used for tiles whose elevation, temperature and " +
+                 "precipitation do not correspond to any of the types in " +
+                 "TileTypes.")]
         protected Sprite invalidSprite;
         public Sprite InvalidSprite
         {
