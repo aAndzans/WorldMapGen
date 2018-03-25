@@ -6,8 +6,8 @@ namespace WorldMapGen
     [System.Serializable]
     public struct Range
     {
-        // The minimum value
         [SerializeField]
+        [Tooltip("The lowest value in the range.")]
         private float min;
         public float Min
         {
@@ -15,8 +15,8 @@ namespace WorldMapGen
             set { min = value; }
         }
 
-        // The maximum value
         [SerializeField]
+        [Tooltip("The highest value in the range.")]
         private float max;
         public float Max
         {
@@ -44,8 +44,8 @@ namespace WorldMapGen
     [System.Serializable]
     public class TileType
     {
-        // The type's name
         [SerializeField]
+        [Tooltip("The name of the tile type.")]
         protected string name;
         public string Name
         {
@@ -53,8 +53,9 @@ namespace WorldMapGen
             set { name = value; }
         }
 
-        // Range of elevations (in m above sea level) where the type may appear
         [SerializeField]
+        [Tooltip("Range of possible elevations (in metres above sea level) " +
+                 "for this tile type.")]
         [Warning(
             "ElevationIsPositiveAndNegative",
             "This type includes both positive and negative elevations. This " +
@@ -73,8 +74,8 @@ namespace WorldMapGen
             return elevation.Min < 0.0f && elevation.Max > 0.0f;
         }
 
-        // Range of temperatures (in °C) where the type may appear
         [SerializeField]
+        [Tooltip("Range of possible temperatures (in °C) for this tile type.")]
         protected Range temperature;
         public Range Temperature
         {
@@ -82,9 +83,9 @@ namespace WorldMapGen
             set { temperature = value; }
         }
 
-        // Range of precipitation amounts (in mm/year) where the type may
-        // appear
         [SerializeField]
+        [Tooltip("Range of possible precipitation amounts (in millimetres " +
+                 "per year) for this tile type.")]
         protected Range precipitation;
         public Range Precipitation
         {
@@ -92,8 +93,8 @@ namespace WorldMapGen
             set { precipitation = value; }
         }
 
-        // The sprite for this type
         [SerializeField]
+        [Tooltip("The sprite used to draw this tile type.")]
         protected Sprite sprite;
         public Sprite Sprite
         {
