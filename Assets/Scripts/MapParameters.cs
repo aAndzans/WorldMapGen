@@ -310,11 +310,12 @@ namespace WorldMapGen
             width = Mathf.Clamp(width, 1, int.MaxValue);
             height = Mathf.Clamp(height, 1, int.MaxValue);
 
-            // Tile scale must be positive and finite
+            // Tile scale must be positive, and the total length in
+            // each dimension must be finite
             tileScale.x = Mathf.Clamp(
-                tileScale.x, float.Epsilon, float.MaxValue);
+                tileScale.x, float.Epsilon, float.MaxValue / width);
             tileScale.y = Mathf.Clamp(
-                tileScale.y, float.Epsilon, float.MaxValue);
+                tileScale.y, float.Epsilon, float.MaxValue / height);
 
             // Ocean coverage must be at least 0 (all land) and less than 1
             oceanCoverage = Mathf.Clamp(
