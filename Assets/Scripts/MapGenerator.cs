@@ -211,8 +211,6 @@ namespace WorldMapGen
                     elevationScale = type.Elevation.Max;
                 }
             }
-            // Also scale based on maximum value of unscaled heightmap
-            elevationScale /= 1.0f - oceanOffset;
 
             // Offset and scale all elevations
             for (int i = 0; i < parameters.Height; i++)
@@ -223,6 +221,8 @@ namespace WorldMapGen
                         (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
                     currentTile.Elevation -= oceanOffset;
                     currentTile.Elevation *= elevationScale;
+                    // Also scale based on maximum value of unscaled heightmap
+                    currentTile.Elevation /= 1.0f - oceanOffset;
 
                     // Store coordinates of all ocean tiles
                     if (currentTile.Elevation <= 0.0f)
@@ -343,29 +343,32 @@ namespace WorldMapGen
                             RainfallOceanDistanceRatio(x, i);
                             
                         elevation = currentTile.Elevation;
+
+                        // If wrapping horizontally, apply orographic
+                        // precipitation from the last tile in the row to the
+                        // first
+                        if (j == 0 && parameters.WrapX)
+                        {
+                            Tile prevTile = (Tile)currentMap.GetTile(
+                                new Vector3Int(
+                                    parameters.Width - x - 1, i, 0));
+                            prevElevation = Mathf.Max(
+                                0.0f, prevTile.Elevation);
+                        }
+                        // Add the effect of orographic precipitation
+                        if (j > 0 || parameters.WrapX)
+                        {
+                            currentTile.Precipitation += OrographicRainfall(
+                                elevation, prevElevation,
+                                currentTile.Temperature, seaLevelTemperature);
+                        }
+
+                        prevElevation = elevation;
                     }
                     else
                     {
-                        elevation = 0.0f;
+                        prevElevation = 0.0f;
                     }
-
-                    // If wrapping horizontally, apply orographic precipitation
-                    // from the last tile in the row to the first
-                    if (j == 0 && parameters.WrapX)
-                    {
-                        Tile prevTile = (Tile)currentMap.GetTile(
-                            new Vector3Int(parameters.Width - x - 1, i, 0));
-                        prevElevation = Mathf.Max(0.0f, prevTile.Elevation);
-                    }
-                    // Add the effect of orographic precipitation
-                    if (j > 0 || parameters.WrapX)
-                    {
-                        currentTile.Precipitation += OrographicRainfall(
-                            elevation, prevElevation,
-                            currentTile.Temperature, seaLevelTemperature);
-                    }
-
-                    prevElevation = elevation;
                 }
             }
         }
