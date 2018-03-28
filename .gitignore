@@ -1,3 +1,5 @@
 .vs/*
 Library/*
 Temp/*
+*.psess
+*.vspx

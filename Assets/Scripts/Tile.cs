@@ -36,5 +36,21 @@ namespace WorldMapGen
                     value, 0.0f, float.PositiveInfinity);
             }
         }
+
+        // Tile coordinates of nearest ocean tile
+        // (-1,-1) means nearest ocean tile is unknown
+        public Vector2Int NearestOcean { get; set; }
+
+        public Tile() : base()
+        {
+            // Nearest ocean tile is initially unknown
+            NearestOcean = new Vector2Int(-1, -1);
+        }
+
+        // Return true if this tile has a known nearest ocean tile
+        public bool HasNearestOcean()
+        {
+            return NearestOcean.x != -1 && NearestOcean.y != -1;
+        }
     }
 }

@@ -32,9 +32,6 @@ namespace WorldMapGen
         // Map's dimensions in km
         protected Vector2 scaledSize;
 
-        // Coordinates of every ocean tile in km
-        protected List<Vector2> oceanCoords;
-
         // Procedurally generate a map, storing it in the given tilemap
         // Return the random seed used for generation
         public virtual int GenerateMap(Tilemap map)
@@ -58,7 +55,6 @@ namespace WorldMapGen
             map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
             scaledSize = ScaleCoords(parameters.Width, parameters.Height);
-            oceanCoords = new List<Vector2>();
 
             CreateTiles();
             GenerateElevation();
@@ -68,7 +64,6 @@ namespace WorldMapGen
 
             currentMap.RefreshAllTiles();
             currentMap = null;
-            oceanCoords.Clear();
 
             // Restore the random state outside the generator
             Random.state = oldState;
@@ -97,11 +92,17 @@ namespace WorldMapGen
             return ((float)y / parameters.Height - 0.5f) * Mathf.PI;
         }
 
-        // Scale the given coordinates to km
+        // Scale the given tile coordinates to km
         protected virtual Vector2 ScaleCoords(int x, int y)
         {
             return new Vector2(x * parameters.TileScale.x,
                                y * parameters.TileScale.y);
+        }
+
+        // Scale the given tile coordinates to km
+        protected virtual Vector2 ScaleCoords(Vector2Int coords)
+        {
+            return ScaleCoords(coords.x, coords.y);
         }
 
         // Return the angle corresponding to a particular tile in a wrapping
@@ -109,6 +110,25 @@ namespace WorldMapGen
         protected virtual float WrappingAngle(int coord, int dimension)
         {
             return 2.0f * Mathf.PI * coord / dimension;
+        }
+
+        // Get the square of the distance between two sets of scaled
+        // coordinates, taking into account wrapping parameters
+        protected virtual float WrappingSqrDistance(Vector2 a, Vector2 b)
+        {
+            float dx = Mathf.Abs(a.x - b.x);
+            if (parameters.WrapX && dx > scaledSize.x / 2.0f)
+            {
+                dx = scaledSize.x - dx;
+            }
+
+            float dy = Mathf.Abs(a.y - b.y);
+            if (parameters.WrapY && dy > scaledSize.y / 2.0f)
+            {
+                dy = scaledSize.y - dy;
+            }
+
+            return dx * dx + dy * dy;
         }
 
         // Generate elevation for every tile
@@ -223,12 +243,6 @@ namespace WorldMapGen
                     currentTile.Elevation *= elevationScale;
                     // Also scale based on maximum value of unscaled heightmap
                     currentTile.Elevation /= 1.0f - oceanOffset;
-
-                    // Store coordinates of all ocean tiles
-                    if (currentTile.Elevation <= 0.0f)
-                    {
-                        oceanCoords.Add(ScaleCoords(j, i));
-                    }
                 }
             }
         }
@@ -311,10 +325,142 @@ namespace WorldMapGen
         // Generate precipitation for every tile
         protected virtual void GenerateRainfall()
         {
+            GenerateLatitudeRainfall();
+            AdjustRainfallForOceanDistance();
+            AdjustOrographicRainfall();
+        }
+
+        // Generate precipitation for every tile based on its latitude
+        protected virtual void GenerateLatitudeRainfall()
+        {
             for (int i = 0; i < parameters.Height; i++)
             {
-                // Starting precipitation for this row
+                // Precipitation for this row
                 float latitudeRainfall = RainfallAtY(i);
+
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    currentTile.Precipitation = latitudeRainfall;
+                }
+            }
+        }
+
+        // Reduce every tile's precipitation based on its distance to the ocean
+        protected virtual void AdjustRainfallForOceanDistance()
+        {
+            // Tile coordinates of tiles left to visit
+            Queue<Vector2Int> frontier = new Queue<Vector2Int>();
+
+            // Add all ocean tiles to the queue
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    if (currentTile.Elevation <= 0.0f)
+                    {
+                        Vector2Int coords = new Vector2Int(j, i);
+                        // Ocean tile's nearest ocean tile is itself
+                        currentTile.NearestOcean = coords;
+                        frontier.Enqueue(coords);
+                    }
+                }
+            }
+
+            // Visit all tiles
+            while (frontier.Count > 0)
+            {
+                // Get the tile currently being visited
+                Vector2Int coords = frontier.Dequeue();
+                Tile currentTile = (Tile)currentMap.GetTile(
+                    new Vector3Int(coords.x, coords.y, 0));
+
+                // Adjust the current tile's precipitation
+                currentTile.Precipitation /= Mathf.Exp(
+                    Mathf.Sqrt(WrappingSqrDistance(
+                                ScaleCoords(coords),
+                                ScaleCoords(currentTile.NearestOcean))) / 
+                    parameters.RainfallOceanEFoldingDistance);
+
+                // Update nearest ocean tile for all neighbours
+                if (coords.x > 0 || parameters.WrapX)
+                {
+                    int neighborX =
+                        coords.x > 0 ? coords.x : parameters.Width;
+                    neighborX--;
+
+                    CheckNeighborOceanDistance(
+                        neighborX, coords.y, currentTile.NearestOcean,
+                        frontier);
+                }
+                if (coords.x < parameters.Width - 1 || parameters.WrapX)
+                {
+                    int neighborX =
+                        coords.x < parameters.Width - 1 ? coords.x + 1 : 0;
+
+                    CheckNeighborOceanDistance(
+                        neighborX, coords.y, currentTile.NearestOcean,
+                        frontier);
+                }
+                if (coords.y > 0 || parameters.WrapY)
+                {
+                    int neighborY =
+                        coords.y > 0 ? coords.y : parameters.Height;
+                    neighborY--;
+
+                    CheckNeighborOceanDistance(
+                        coords.x, neighborY, currentTile.NearestOcean,
+                        frontier);
+                }
+                if (coords.y < parameters.Height - 1 || parameters.WrapY)
+                {
+                    int neighborY =
+                        coords.y < parameters.Height - 1 ? coords.y + 1 : 0;
+
+                    CheckNeighborOceanDistance(
+                        coords.x, neighborY, currentTile.NearestOcean,
+                        frontier);
+                }
+            }
+        }
+
+        // If the given neighbour is closer to nearestOcean than to its current
+        // nearest ocean tile, update its nearest ocean tile
+        // If the neighbour's nearest ocean tile is not known, set it to
+        // nearestOcean and add the neighbour to frontier
+        protected virtual void CheckNeighborOceanDistance(
+            int neighborX, int neighborY, Vector2Int nearestOcean,
+            Queue<Vector2Int> frontier)
+        {
+            // Get the neighbour
+            Tile neighbor = (Tile)currentMap.GetTile(
+                new Vector3Int(neighborX, neighborY, 0));
+            Vector2Int neighborCoords = new Vector2Int(neighborX, neighborY);
+            Vector2 neighborKmCoords = ScaleCoords(neighborCoords);
+
+            // Should the neighbour be updated?
+            if (!neighbor.HasNearestOcean() ||
+                WrappingSqrDistance(neighborKmCoords,
+                                    ScaleCoords(nearestOcean)) <
+                WrappingSqrDistance(neighborKmCoords,
+                                    ScaleCoords(neighbor.NearestOcean)))
+            {
+                if (!neighbor.HasNearestOcean())
+                {
+                    frontier.Enqueue(neighborCoords);
+                }
+                neighbor.NearestOcean = nearestOcean;
+            }
+        }
+
+        // Apply effect of orographic precipitation to all land tiles
+        protected virtual void AdjustOrographicRainfall()
+        {
+            for (int i = 0; i < parameters.Height; i++)
+            {
                 // Temperature at sea level for this row
                 float seaLevelTemperature = TemperatureAtY(i);
                 // Elevation of the previous tile in this row
@@ -331,19 +477,10 @@ namespace WorldMapGen
 
                     Tile currentTile =
                         (Tile)currentMap.GetTile(new Vector3Int(x, i, 0));
-                    currentTile.Precipitation = latitudeRainfall;
 
-                    float elevation;
-
-                    // For land tiles
+                    // Only apply to land tiles
                     if (currentTile.Elevation > 0.0f)
                     {
-                        // Reduce precipitation based on distance to the ocean
-                        currentTile.Precipitation /=
-                            RainfallOceanDistanceRatio(x, i);
-                            
-                        elevation = currentTile.Elevation;
-
                         // If wrapping horizontally, apply orographic
                         // precipitation from the last tile in the row to the
                         // first
@@ -359,11 +496,11 @@ namespace WorldMapGen
                         if (j > 0 || parameters.WrapX)
                         {
                             currentTile.Precipitation += OrographicRainfall(
-                                elevation, prevElevation,
+                                currentTile.Elevation, prevElevation,
                                 currentTile.Temperature, seaLevelTemperature);
                         }
 
-                        prevElevation = elevation;
+                        prevElevation = currentTile.Elevation;
                     }
                     else
                     {
@@ -455,50 +592,6 @@ namespace WorldMapGen
                    (1.0f + equatorSquareBase * equatorSquareBase) +
                    parameters.MidLatitudeRainfall /
                    (1.0f + midLatitudeSquareBase2 * midLatitudeSquareBase2);
-        }
-
-        // Return the ratio by which to divide a tile's precipitation based on
-        // its distance to the nearest ocean tile
-        protected virtual float RainfallOceanDistanceRatio(int x, int y)
-        {
-            float shortestSqDist = float.PositiveInfinity;
-            Vector2 currentTile = ScaleCoords(x, y);
-
-            // Find the square distance to the nearest ocean tile
-            foreach (Vector2 oceanTile in oceanCoords)
-            {
-                // Distance between both tiles in each dimension
-                Vector2 diff = oceanTile - currentTile;
-
-                shortestSqDist = Mathf.Min(shortestSqDist, diff.sqrMagnitude);
-
-                // If wrapping, also check distance in the directions that
-                // wrap around the edges
-                Vector2 wrappedDiff = new Vector2(
-                    scaledSize.x - Mathf.Abs(diff.x),
-                    scaledSize.y - Mathf.Abs(diff.y));
-
-                if (parameters.WrapX)
-                {
-                    shortestSqDist = Mathf.Min(
-                        shortestSqDist,
-                        new Vector2(wrappedDiff.x, diff.y).sqrMagnitude);
-                }
-                if (parameters.WrapY)
-                {
-                    shortestSqDist = Mathf.Min(
-                        shortestSqDist,
-                        new Vector2(diff.x, wrappedDiff.y).sqrMagnitude);
-                }
-                if (parameters.WrapX && parameters.WrapY)
-                {
-                    shortestSqDist = Mathf.Min(
-                        shortestSqDist, wrappedDiff.sqrMagnitude);
-                }
-            }
-
-            return Mathf.Exp(Mathf.Sqrt(shortestSqDist) /
-                             parameters.RainfallOceanEFoldingDistance);
         }
 
         // Return the change in precipitation due to the effects of wind and

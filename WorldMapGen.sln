@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
+# Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMapGen", "WorldMapGen.csproj", "{4A147FD2-5E25-C11F-65E3-1D9B76294A5C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMapGen.Editor", "WorldMapGen.Editor.csproj", "{B8314937-4936-DDF2-4677-B78CB3664E71}"
