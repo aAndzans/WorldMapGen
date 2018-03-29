@@ -103,35 +103,6 @@ namespace WorldMapGen
         private static readonly float
             skew2D, unskew2D, skew3D, unskew3D, skew4D, unskew4D;
 
-        // A lookup table to traverse the simplex around a given point in 4D
-        // Details can be found where this table is used in the 4D noise method
-        private static readonly Vector4Int[] simplex =
-        {
-            new Vector4Int(0, 1, 2, 3), new Vector4Int(0, 1, 3, 2),
-            Vector4Int.zero, new Vector4Int(0, 2, 3, 1), Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, new Vector4Int(1, 2, 3, 0),
-            new Vector4Int(0, 2, 1, 3), Vector4Int.zero,
-            new Vector4Int(0, 3, 1, 2), new Vector4Int(0, 3, 2, 1),
-            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
-            new Vector4Int(1, 3, 2, 0), Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, new Vector4Int(1, 2, 0, 3),
-            Vector4Int.zero, new Vector4Int(1, 3, 0, 2), Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, new Vector4Int(2, 3, 0, 1),
-            new Vector4Int(2, 3, 1, 0), new Vector4Int(1, 0, 2, 3),
-            new Vector4Int(1, 0, 3, 2), Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, new Vector4Int(2, 0, 3, 1), Vector4Int.zero,
-            new Vector4Int(2, 1, 3, 0), Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, Vector4Int.zero, new Vector4Int(2, 0, 1, 3),
-            Vector4Int.zero, Vector4Int.zero, Vector4Int.zero,
-            new Vector4Int(3, 0, 1, 2), new Vector4Int(3, 0, 2, 1),
-            Vector4Int.zero, new Vector4Int(3, 1, 2, 0),
-            new Vector4Int(2, 1, 0, 3), Vector4Int.zero, Vector4Int.zero,
-            Vector4Int.zero, new Vector4Int(3, 1, 0, 2), Vector4Int.zero,
-            new Vector4Int(3, 2, 0, 1), new Vector4Int(3, 2, 1, 0)
-        };
-
         static SimplexNoise()
         {
             // Double the permutation table length
@@ -375,40 +346,32 @@ namespace WorldMapGen
             // describe.
             // To find out which of the 24 possible simplices we're in, we need
             // to determine the magnitude ordering of the origin's coordinates.
-            // The method below is a good way of finding the ordering of
-            // x,y,z,w and then find the correct traversal order for the
-            // simplex we’re in.
-            // First, six pair-wise comparisons are performed between each
-            // possible pair of the four coordinates, and the results are used
-            // to add up binary bits for an integer index.
-            int c = 0;
-            if (corners[0].x > corners[0].y) c += 32;
-            if (corners[0].x > corners[0].z) c += 16;
-            if (corners[0].y > corners[0].z) c += 8;
-            if (corners[0].x > corners[0].w) c += 4;
-            if (corners[0].y > corners[0].w) c += 2;
-            if (corners[0].z > corners[0].w) c += 1;
+            // Six pair-wise comparisons are performed between each possible
+            // pair of the four coordinates, and the results are used to rank
+            // the numbers.
+            Vector4Int rank = Vector4Int.zero;
+            if (corners[0].x > corners[0].y) rank.x++; else rank.y++;
+            if (corners[0].x > corners[0].z) rank.x++; else rank.z++;
+            if (corners[0].x > corners[0].w) rank.x++; else rank.w++;
+            if (corners[0].y > corners[0].z) rank.y++; else rank.z++;
+            if (corners[0].y > corners[0].w) rank.y++; else rank.w++;
+            if (corners[0].z > corners[0].w) rank.z++; else rank.w++;
 
             // Offsets for simplex corners in (i,j,k,l) coords
             Vector4Int[] skewedOffsets = new Vector4Int[5];
 
-            // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some
-            // order.
-            // Many values of c will never occur, since e.g. x>y>z>w makes x<z,
-            // y<w and x<w impossible. Only the 24 indices which have non-zero
-            // entries make any sense.
-            // We use a thresholding to set the coordinates in turn from the
-            // largest magnitude.
+            // rank is a 4-vector with the numbers 0, 1, 2 and 3 in some order.
+            // We use a thresholding to set the coordinates in turn.
 
             // The first corner has all coordinate offsets = 0
             skewedOffsets[0] = Vector4Int.zero;
             // Second to fourth corners
             for (int i = 1; i < 4; i++)
             {
-                skewedOffsets[i].x = simplex[c].x >= 4 - i ? 1 : 0;
-                skewedOffsets[i].y = simplex[c].y >= 4 - i ? 1 : 0;
-                skewedOffsets[i].z = simplex[c].z >= 4 - i ? 1 : 0;
-                skewedOffsets[i].w = simplex[c].w >= 4 - i ? 1 : 0;
+                skewedOffsets[i].x = rank.x >= 4 - i ? 1 : 0;
+                skewedOffsets[i].y = rank.y >= 4 - i ? 1 : 0;
+                skewedOffsets[i].z = rank.z >= 4 - i ? 1 : 0;
+                skewedOffsets[i].w = rank.w >= 4 - i ? 1 : 0;
             }
             // The fifth corner has all coordinate offsets = 1
             skewedOffsets[0] = Vector4Int.one;
@@ -446,7 +409,7 @@ namespace WorldMapGen
                         skewedCell.x + skewedOffsets[i].x + perm[
                             skewedCell.y + skewedOffsets[i].y + perm[
                                 skewedCell.z + skewedOffsets[i].z + perm[
-                                    skewedCell.w + skewedOffsets[i].w]]]] % 12;
+                                    skewedCell.w + skewedOffsets[i].w]]]] % 32;
                     t *= t;
                     noise += t * t * Vector4.Dot(grad4[gi], corners[i]);
                 }
