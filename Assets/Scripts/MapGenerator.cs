@@ -347,7 +347,8 @@ namespace WorldMapGen
             }
         }
 
-        // Reduce every tile's precipitation based on its distance to the ocean
+        // Reduce every land tile's precipitation based on its distance to the
+        // ocean
         protected virtual void AdjustRainfallForOceanDistance()
         {
             // Tile coordinates of tiles left to visit
@@ -370,20 +371,14 @@ namespace WorldMapGen
                 }
             }
 
-            // Visit all tiles
+            // Find the nearest ocean tile for all tiles using a Euclidean
+            // distance transform
             while (frontier.Count > 0)
             {
                 // Get the tile currently being visited
                 Vector2Int coords = frontier.Dequeue();
                 Tile currentTile = (Tile)currentMap.GetTile(
                     new Vector3Int(coords.x, coords.y, 0));
-
-                // Adjust the current tile's precipitation
-                currentTile.Precipitation /= Mathf.Exp(
-                    Mathf.Sqrt(WrappingSqrDistance(
-                                ScaleCoords(coords),
-                                ScaleCoords(currentTile.NearestOcean))) / 
-                    parameters.RainfallOceanEFoldingDistance);
 
                 // Update nearest ocean tile for all neighbours
                 if (coords.x > 0 || parameters.WrapX)
@@ -425,12 +420,30 @@ namespace WorldMapGen
                         frontier);
                 }
             }
+
+            // Adjust all land tiles' precipitation
+            for (int i = 0; i < parameters.Height; i++)
+            {
+                for (int j = 0; j < parameters.Width; j++)
+                {
+                    Tile currentTile =
+                        (Tile)currentMap.GetTile(new Vector3Int(j, i, 0));
+                    if (currentTile.Elevation > 0.0f)
+                    {
+                        currentTile.Precipitation /= Mathf.Exp(
+                            Mathf.Sqrt(
+                                WrappingSqrDistance(
+                                    ScaleCoords(j, i),
+                                    ScaleCoords(currentTile.NearestOcean))) /
+                            parameters.RainfallOceanEFoldingDistance);
+                    }
+                }
+            }
         }
 
         // If the given neighbour is closer to nearestOcean than to its current
-        // nearest ocean tile, update its nearest ocean tile
-        // If the neighbour's nearest ocean tile is not known, set it to
-        // nearestOcean and add the neighbour to frontier
+        // nearest ocean tile (or if its nearest ocean tile is unknown), update
+        // its nearest ocean tile and add the neighbour to frontier
         protected virtual void CheckNeighborOceanDistance(
             int neighborX, int neighborY, Vector2Int nearestOcean,
             Queue<Vector2Int> frontier)
@@ -442,16 +455,14 @@ namespace WorldMapGen
             Vector2 neighborKmCoords = ScaleCoords(neighborCoords);
 
             // Should the neighbour be updated?
-            if (!neighbor.HasNearestOcean() ||
-                WrappingSqrDistance(neighborKmCoords,
-                                    ScaleCoords(nearestOcean)) <
-                WrappingSqrDistance(neighborKmCoords,
-                                    ScaleCoords(neighbor.NearestOcean)))
+            if (neighbor.Elevation > 0.0f && (
+                    !neighbor.HasNearestOcean() ||
+                    WrappingSqrDistance(neighborKmCoords,
+                                        ScaleCoords(nearestOcean)) <
+                    WrappingSqrDistance(neighborKmCoords,
+                                        ScaleCoords(neighbor.NearestOcean))))
             {
-                if (!neighbor.HasNearestOcean())
-                {
-                    frontier.Enqueue(neighborCoords);
-                }
+                frontier.Enqueue(neighborCoords);
                 neighbor.NearestOcean = nearestOcean;
             }
         }
