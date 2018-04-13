@@ -636,27 +636,49 @@ namespace WorldMapGen
             int cornersHeight = parameters.Height;
             if (!parameters.WrapY) cornersHeight++;
 
+            // Check all tile corners
             for (int i = 0; i < cornersHeight; i++)
             {
                 for (int j = 0; j < cornersWidth; i++)
                 {
+                    // River tiles are at Z=1
                     Vector3Int cornerCoords = new Vector3Int(j, i, 1);
-                    RiverTile currentCorner = currentMap.GetTile<RiverTile>(cornerCoords);
+                    RiverTile currentCorner =
+                        currentMap.GetTile<RiverTile>(cornerCoords);
+                    // Skip if there is already a river here
                     if (currentCorner) continue;
 
+                    // X coordinate for tiles on the left
                     int adjacentX = Globals.WrappedCoord(
                         j - 1, parameters.Width, parameters.WrapX);
+                    // Y coordinate for tiles above
                     int adjacentY = Globals.WrappedCoord(
                         i - 1, parameters.Height, parameters.WrapY);
 
-                    if (currentMap.GetTile<Tile>(new Vector3Int(j, i, 0)).Elevation < 0.0f ||
-                        adjacentX != -1 && currentMap.GetTile<Tile>(new Vector3Int(adjacentX, i, 0)).Elevation < 0.0f ||
-                        adjacentY != -1 && currentMap.GetTile<Tile>(new Vector3Int(j, adjacentY, 0)).Elevation < 0.0f ||
-                        adjacentX != -1 && adjacentY != -1 && currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Elevation < 0.0f)
+                    // Skip if corner is adjacent to an ocean tile
+                    if (// Lower right
+                        currentMap.GetTile<Tile>(
+                            new Vector3Int(j, i, 0)).Elevation < 0.0f ||
+                        // Lower left
+                        adjacentX != -1 &&
+                        currentMap.GetTile<Tile>(
+                            new Vector3Int(
+                                adjacentX, i, 0)).Elevation < 0.0f ||
+                        // Upper right
+                        adjacentY != -1 &&
+                        currentMap.GetTile<Tile>(
+                            new Vector3Int(
+                                j, adjacentY, 0)).Elevation < 0.0f ||
+                        // Upper left
+                        adjacentX != -1 && adjacentY != -1 &&
+                        currentMap.GetTile<Tile>(
+                            new Vector3Int(
+                                adjacentX, adjacentY, 0)).Elevation < 0.0f)
                     {
                         continue;
                     }
 
+                    // Certain probability of starting river
                     if (Random.value < RiverProbability(j, i))
                     {
 
@@ -665,50 +687,72 @@ namespace WorldMapGen
             }
         }
 
+        // Calculate the average elevation of the 4 tiles around the given
+        // corner coordinates
         protected virtual float CornerElevation(int x, int y)
         {
-            float sum = currentMap.GetTile<Tile>(new Vector3Int(x, y, 0)).Elevation;
+            // Lower right
+            float sum = currentMap.GetTile<Tile>(
+                new Vector3Int(x, y, 0)).Elevation;
             int count = 1;
 
+            // X coordinate for tiles on the left
             int adjacentX = Globals.WrappedCoord(
                 x - 1, parameters.Width, parameters.WrapX);
+            // Y coordinate for tiles above
             int adjacentY = Globals.WrappedCoord(
                 y - 1, parameters.Height, parameters.WrapY);
 
+            // Lower left
             if (adjacentX != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, y, 0)).Elevation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(adjacentX, y, 0)).Elevation;
                 count++;
             }
 
+            // Upper right
             if (adjacentY != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(x, adjacentY, 0)).Elevation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(x, adjacentY, 0)).Elevation;
                 count++;
             }
 
+            // Upper left
             if (adjacentX != -1 && adjacentY != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Elevation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(adjacentX, adjacentY, 0)).Elevation;
                 count++;
             }
 
             return sum / count;
         }
 
-        protected virtual float SteepestSlope(int x, int y, out int otherX, out int otherY)
+        // From the given corner coordinates, calculate the steepest downslope
+        // Output the coordinates of the corner down that slope to otherX and
+        // otherY
+        // If there are no downslopes, return 0 and set otherX and otherY to -1
+        protected virtual float SteepestSlope(
+            int x, int y, out int otherX, out int otherY)
         {
-            otherX = -1;
-            otherY = -1;
+            // Steepest downslope found so far
             float maxSlope = 0.0f;
             float slope;
+            // Elevation of the corner being checked
             float elevation = CornerElevation(x, y);
 
+            otherX = -1;
+            otherY = -1;
+
+            // Left
             int adjacentX = Globals.WrappedCoord(
                 x - 1, parameters.Width + 1, parameters.WrapX);
             if (adjacentX != -1)
             {
-                slope = (elevation - CornerElevation(adjacentX, y)) / (parameters.TileScale.x * Globals.KmToM);
+                slope = (elevation - CornerElevation(adjacentX, y)) /
+                    (parameters.TileScale.x * Globals.KmToM);
                 if (slope > maxSlope)
                 {
                     maxSlope = slope;
@@ -717,11 +761,13 @@ namespace WorldMapGen
                 }
             }
 
+            // Right
             adjacentX = Globals.WrappedCoord(
                 x + 1, parameters.Width + 1, parameters.WrapX);
             if (adjacentX != -1)
             {
-                slope = (elevation - CornerElevation(adjacentX, y)) / (parameters.TileScale.x * Globals.KmToM);
+                slope = (elevation - CornerElevation(adjacentX, y)) /
+                    (parameters.TileScale.x * Globals.KmToM);
                 if (slope > maxSlope)
                 {
                     maxSlope = slope;
@@ -730,11 +776,13 @@ namespace WorldMapGen
                 }
             }
 
+            // Up
             int adjacentY = Globals.WrappedCoord(
                 y - 1, parameters.Height + 1, parameters.WrapY);
             if (adjacentY != -1)
             {
-                slope = (elevation - CornerElevation(x, adjacentY)) / (parameters.TileScale.y * Globals.KmToM);
+                slope = (elevation - CornerElevation(x, adjacentY)) /
+                    (parameters.TileScale.y * Globals.KmToM);
                 if (slope > maxSlope)
                 {
                     maxSlope = slope;
@@ -743,11 +791,13 @@ namespace WorldMapGen
                 }
             }
 
+            // Down
             adjacentY = Globals.WrappedCoord(
                 y + 1, parameters.Height + 1, parameters.WrapY);
             if (adjacentY != -1)
             {
-                slope = (elevation - CornerElevation(x, adjacentY)) / (parameters.TileScale.y * Globals.KmToM);
+                slope = (elevation - CornerElevation(x, adjacentY)) /
+                    (parameters.TileScale.y * Globals.KmToM);
                 if (slope > maxSlope)
                 {
                     maxSlope = slope;
@@ -759,41 +809,62 @@ namespace WorldMapGen
             return maxSlope;
         }
 
+        // Calculate the average precipitation of the 4 tiles around the given
+        // corner coordinates
         protected virtual float CornerPrecipitation(int x, int y)
         {
-            float sum = currentMap.GetTile<Tile>(new Vector3Int(x, y, 0)).Precipitation;
+            // Lower right
+            float sum = currentMap.GetTile<Tile>(
+                new Vector3Int(x, y, 0)).Precipitation;
             int count = 1;
 
+            // X coordinate for tiles on the left
             int adjacentX = Globals.WrappedCoord(
                 x - 1, parameters.Width, parameters.WrapX);
+            // Y coordinate for tiles above
             int adjacentY = Globals.WrappedCoord(
                 y - 1, parameters.Height, parameters.WrapY);
 
+            // Lower left
             if (adjacentX != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, y, 0)).Precipitation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(adjacentX, y, 0)).Precipitation;
                 count++;
             }
 
+            // Upper right
             if (adjacentY != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(x, adjacentY, 0)).Precipitation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(x, adjacentY, 0)).Precipitation;
                 count++;
             }
 
+            // Upper left
             if (adjacentX != -1 && adjacentY != -1)
             {
-                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Precipitation;
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(adjacentX, adjacentY, 0)).Precipitation;
                 count++;
             }
 
             return sum / count;
         }
 
+        // Calculate the probability of a river starting at the given corner
+        // coordinates
         protected virtual float RiverProbability(int x, int y)
         {
+            // Output arguments for slope function (not used)
             int outX, outY;
-            return 4.0f * Mathf.Atan(parameters.RiverRainfallMultiplier * CornerPrecipitation(x, y)) * Mathf.Atan(parameters.RiverSlopeMultiplier * SteepestSlope(x, y, out outX, out outY)) / (Mathf.PI * Mathf.PI);
+
+            return 4.0f *
+                Mathf.Atan(parameters.RiverRainfallMultiplier *
+                                  CornerPrecipitation(x, y)) *
+                Mathf.Atan(parameters.RiverSlopeMultiplier * 
+                           SteepestSlope(x, y, out outX, out outY)) /
+                (Mathf.PI * Mathf.PI);
         }
 
         // Set an appropriate tile type and its sprite for each tile
