@@ -52,7 +52,6 @@ namespace WorldMapGen
             }
             Random.InitState(randomSeed);
 
-            map.size = new Vector3Int(parameters.Width, parameters.Height, 1);
             currentMap = map;
             scaledSize = ScaleCoords(parameters.Width, parameters.Height);
 
