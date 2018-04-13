@@ -597,6 +597,64 @@ MonoBehaviour:
     saturationPressureConst1: 17.67
     saturationPressureConst2: 243.5
     moistureScaleHeightDivisor: 5385
+    riverSourceUpSprite: {fileID: 21300000, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverSourceLeftSprite: {fileID: 21300002, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverSourceDownSprite: {fileID: 21300004, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverSourceRightSprite: {fileID: 21300006, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthStraightUpSprite: {fileID: 21300008, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthStraightLeftSprite: {fileID: 21300010, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthStraightDownSprite: {fileID: 21300012, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthStraightRightSprite: {fileID: 21300014, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLeftUpSprite: {fileID: 21300016, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLeftLeftSprite: {fileID: 21300018, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLeftDownSprite: {fileID: 21300020, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLeftRightSprite: {fileID: 21300022, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthRightUpSprite: {fileID: 21300024, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthRightLeftSprite: {fileID: 21300026, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthRightDownSprite: {fileID: 21300028, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthRightRightSprite: {fileID: 21300030, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverLRightUpSprite: {fileID: 21300032, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverLUpLeftSprite: {fileID: 21300034, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverLLeftDownSprite: {fileID: 21300036, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverLDownRightSprite: {fileID: 21300038, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLRightUpSprite: {fileID: 21300040, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLUpLeftSprite: {fileID: 21300042, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLLeftDownSprite: {fileID: 21300044, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverMouthLDownRightSprite: {fileID: 21300046, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverStraightVerticalSprite: {fileID: 21300048, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverStraightHorizontalSprite: {fileID: 21300050, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverTDownSprite: {fileID: 21300052, guid: e28327222030da040b24b679c3fc442d, type: 3}
+    riverTRightSprite: {fileID: 21300054, guid: e28327222030da040b24b679c3fc442d,
+      type: 3}
+    riverTUpSprite: {fileID: 21300056, guid: e28327222030da040b24b679c3fc442d, type: 3}
+    riverTLeftSprite: {fileID: 21300058, guid: e28327222030da040b24b679c3fc442d, type: 3}
+    riverCrossSprite: {fileID: 21300060, guid: e28327222030da040b24b679c3fc442d, type: 3}
     invalidSprite: {fileID: 21300000, guid: 33a5ab26c555c334c9d7b6ef2d3157dd, type: 3}
 --- !u!483693784 &502862085
 TilemapRenderer:

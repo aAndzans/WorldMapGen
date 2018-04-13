@@ -293,6 +293,310 @@ namespace WorldMapGen
         }
 
         [SerializeField]
+        [Tooltip("Sprite for the start of a river flowing up.")]
+        protected Sprite riverSourceUpSprite;
+        public Sprite RiverSourceUpSprite
+        {
+            get { return riverSourceUpSprite; }
+            set { riverSourceUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for the start of a river flowing left.")]
+        protected Sprite riverSourceLeftSprite;
+        public Sprite RiverSourceLeftSprite
+        {
+            get { return riverSourceLeftSprite; }
+            set { riverSourceLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for the start of a river flowing down.")]
+        protected Sprite riverSourceDownSprite;
+        public Sprite RiverSourceDownSprite
+        {
+            get { return riverSourceDownSprite; }
+            set { riverSourceDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for the start of a river flowing right.")]
+        protected Sprite riverSourceRightSprite;
+        public Sprite RiverSourceRightSprite
+        {
+            get { return riverSourceRightSprite; }
+            set { riverSourceRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from above straight into the " +
+                 "ocean.")]
+        protected Sprite riverMouthStraightUpSprite;
+        public Sprite RiverMouthStraightUpSprite
+        {
+            get { return riverMouthStraightUpSprite; }
+            set { riverMouthStraightUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the left straight into " +
+                 "the ocean.")]
+        protected Sprite riverMouthStraightLeftSprite;
+        public Sprite RiverMouthStraightLeftSprite
+        {
+            get { return riverMouthStraightLeftSprite; }
+            set { riverMouthStraightLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from below straight into the " +
+                 "ocean.")]
+        protected Sprite riverMouthStraightDownSprite;
+        public Sprite RiverMouthStraightDownSprite
+        {
+            get { return riverMouthStraightDownSprite; }
+            set { riverMouthStraightDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the right straight into " +
+                 "the ocean.")]
+        protected Sprite riverMouthStraightRightSprite;
+        public Sprite RiverMouthStraightRightSprite
+        {
+            get { return riverMouthStraightRightSprite; }
+            set { riverMouthStraightRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from above into the ocean on " +
+                 "its left bank.")]
+        protected Sprite riverMouthLeftUpSprite;
+        public Sprite RiverMouthLeftUpSprite
+        {
+            get { return riverMouthLeftUpSprite; }
+            set { riverMouthLeftUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the left into the ocean " +
+                 "on its left bank.")]
+        protected Sprite riverMouthLeftLeftSprite;
+        public Sprite RiverMouthLeftLeftSprite
+        {
+            get { return riverMouthLeftLeftSprite; }
+            set { riverMouthLeftLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from below into the ocean on " +
+                 "its left bank.")]
+        protected Sprite riverMouthLeftDownSprite;
+        public Sprite RiverMouthLeftDownSprite
+        {
+            get { return riverMouthLeftDownSprite; }
+            set { riverMouthLeftDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the right into the ocean " +
+                 "on its left bank.")]
+        protected Sprite riverMouthLeftRightSprite;
+        public Sprite RiverMouthLeftRightSprite
+        {
+            get { return riverMouthLeftRightSprite; }
+            set { riverMouthLeftRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from above into the ocean on " +
+                 "its right bank.")]
+        protected Sprite riverMouthRightUpSprite;
+        public Sprite RiverMouthRightUpSprite
+        {
+            get { return riverMouthRightUpSprite; }
+            set { riverMouthRightUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the left into the ocean " +
+                 "on its right bank.")]
+        protected Sprite riverMouthRightLeftSprite;
+        public Sprite RiverMouthRightLeftSprite
+        {
+            get { return riverMouthRightLeftSprite; }
+            set { riverMouthRightLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from below into the ocean on " +
+                 "its right bank.")]
+        protected Sprite riverMouthRightDownSprite;
+        public Sprite RiverMouthRightDownSprite
+        {
+            get { return riverMouthRightDownSprite; }
+            set { riverMouthRightDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river flowing from the right into the ocean " +
+                 "on its right bank.")]
+        protected Sprite riverMouthRightRightSprite;
+        public Sprite RiverMouthRightRightSprite
+        {
+            get { return riverMouthRightRightSprite; }
+            set { riverMouthRightRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles on the " +
+                 "right and above.")]
+        protected Sprite riverLRightUpSprite;
+        public Sprite RiverLRightUpSprite
+        {
+            get { return riverLRightUpSprite; }
+            set { riverLRightUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles above " +
+                 "and on the left.")]
+        protected Sprite riverLUpLeftSprite;
+        public Sprite RiverLUpLeftSprite
+        {
+            get { return riverLUpLeftSprite; }
+            set { riverLUpLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles on the " +
+                 "left and below.")]
+        protected Sprite riverLLeftDownSprite;
+        public Sprite RiverLLeftDownSprite
+        {
+            get { return riverLLeftDownSprite; }
+            set { riverLLeftDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles below " +
+                 "and on the right.")]
+        protected Sprite riverLDownRightSprite;
+        public Sprite RiverLDownRightSprite
+        {
+            get { return riverLDownRightSprite; }
+            set { riverLDownRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for rivers flowing into the ocean from the right " +
+                 "and above.")]
+        protected Sprite riverMouthLRightUpSprite;
+        public Sprite RiverMouthLRightUpSprite
+        {
+            get { return riverMouthLRightUpSprite; }
+            set { riverMouthLRightUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for rivers flowing into the ocean from above and " +
+                 "the left.")]
+        protected Sprite riverMouthLUpLeftSprite;
+        public Sprite RiverMouthLUpLeftSprite
+        {
+            get { return riverMouthLUpLeftSprite; }
+            set { riverMouthLUpLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for rivers flowing into the ocean from the left " +
+                 "and below.")]
+        protected Sprite riverMouthLLeftDownSprite;
+        public Sprite RiverMouthLLeftDownSprite
+        {
+            get { return riverMouthLLeftDownSprite; }
+            set { riverMouthLLeftDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for rivers flowing into the ocean from below and " +
+                 "the right.")]
+        protected Sprite riverMouthLDownRightSprite;
+        public Sprite RiverMouthLDownRightSprite
+        {
+            get { return riverMouthLDownRightSprite; }
+            set { riverMouthLDownRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a straight vertical river.")]
+        protected Sprite riverStraightVerticalSprite;
+        public Sprite RiverStraightVerticalSprite
+        {
+            get { return riverStraightVerticalSprite; }
+            set { riverStraightVerticalSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a straight horizontal river.")]
+        protected Sprite riverStraightHorizontalSprite;
+        public Sprite RiverStraightHorizontalSprite
+        {
+            get { return riverStraightHorizontalSprite; }
+            set { riverStraightHorizontalSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles on the " +
+                 "left, below and on the right.")]
+        protected Sprite riverTDownSprite;
+        public Sprite RiverTDownSprite
+        {
+            get { return riverTDownSprite; }
+            set { riverTDownSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles below, " +
+                 "on the right and above.")]
+        protected Sprite riverTRightSprite;
+        public Sprite RiverTRightSprite
+        {
+            get { return riverTRightSprite; }
+            set { riverTRightSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles on the " +
+                 "right, above and on the left.")]
+        protected Sprite riverTUpSprite;
+        public Sprite RiverTUpSprite
+        {
+            get { return riverTUpSprite; }
+            set { riverTUpSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles above, " +
+                 "on the left and below.")]
+        protected Sprite riverTLeftSprite;
+        public Sprite RiverTLeftSprite
+        {
+            get { return riverTLeftSprite; }
+            set { riverTLeftSprite = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Sprite for a river connected to other river tiles in all " +
+                 "directions.")]
+        protected Sprite riverCrossSprite;
+        public Sprite RiverCrossSprite
+        {
+            get { return riverCrossSprite; }
+            set { riverCrossSprite = value; }
+        }
+
+        [SerializeField]
         [Tooltip("Sprite used for tiles whose elevation, temperature and " +
                  "precipitation do not correspond to any of the types in " +
                  "TileTypes.")]
