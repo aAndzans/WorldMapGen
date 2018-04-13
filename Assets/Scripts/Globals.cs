@@ -39,5 +39,18 @@
             bytes = System.BitConverter.GetBytes(xInt);
             return System.BitConverter.ToSingle(bytes, 0);
         }
+
+        // If coord is within the range [0,max), return coord
+        // If it is outside that range and wrap is false, return -1
+        // Otherwise return coord % max
+        public static int WrappedCoord(int coord, int max, bool wrap)
+        {
+            if (coord < 0 || coord >= max)
+            {
+                if (wrap) return coord % max;
+                return -1;
+            }
+            return coord;
+        }
     }
 }

@@ -627,6 +627,175 @@ namespace WorldMapGen
                 (parameters.TileScale.x * Globals.KmToM);
         }
 
+        // Place rivers on the map
+        protected virtual void GenerateRivers()
+        {
+            // In non-wrapping dimensions, there are more corners than tiles
+            int cornersWidth = parameters.Width;
+            if (!parameters.WrapX) cornersWidth++;
+            int cornersHeight = parameters.Height;
+            if (!parameters.WrapY) cornersHeight++;
+
+            for (int i = 0; i < cornersHeight; i++)
+            {
+                for (int j = 0; j < cornersWidth; i++)
+                {
+                    Vector3Int cornerCoords = new Vector3Int(j, i, 1);
+                    RiverTile currentCorner = currentMap.GetTile<RiverTile>(cornerCoords);
+                    if (currentCorner) continue;
+
+                    int adjacentX = Globals.WrappedCoord(
+                        j - 1, parameters.Width, parameters.WrapX);
+                    int adjacentY = Globals.WrappedCoord(
+                        i - 1, parameters.Height, parameters.WrapY);
+
+                    if (currentMap.GetTile<Tile>(new Vector3Int(j, i, 0)).Elevation < 0.0f ||
+                        adjacentX != -1 && currentMap.GetTile<Tile>(new Vector3Int(adjacentX, i, 0)).Elevation < 0.0f ||
+                        adjacentY != -1 && currentMap.GetTile<Tile>(new Vector3Int(j, adjacentY, 0)).Elevation < 0.0f ||
+                        adjacentX != -1 && adjacentY != -1 && currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Elevation < 0.0f)
+                    {
+                        continue;
+                    }
+
+                    if (Random.value < RiverProbability(j, i))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        protected virtual float CornerElevation(int x, int y)
+        {
+            float sum = currentMap.GetTile<Tile>(new Vector3Int(x, y, 0)).Elevation;
+            int count = 1;
+
+            int adjacentX = Globals.WrappedCoord(
+                x - 1, parameters.Width, parameters.WrapX);
+            int adjacentY = Globals.WrappedCoord(
+                y - 1, parameters.Height, parameters.WrapY);
+
+            if (adjacentX != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, y, 0)).Elevation;
+                count++;
+            }
+
+            if (adjacentY != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(x, adjacentY, 0)).Elevation;
+                count++;
+            }
+
+            if (adjacentX != -1 && adjacentY != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Elevation;
+                count++;
+            }
+
+            return sum / count;
+        }
+
+        protected virtual float SteepestSlope(int x, int y, out int otherX, out int otherY)
+        {
+            otherX = -1;
+            otherY = -1;
+            float maxSlope = 0.0f;
+            float slope;
+            float elevation = CornerElevation(x, y);
+
+            int adjacentX = Globals.WrappedCoord(
+                x - 1, parameters.Width + 1, parameters.WrapX);
+            if (adjacentX != -1)
+            {
+                slope = (elevation - CornerElevation(adjacentX, y)) / (parameters.TileScale.x * Globals.KmToM);
+                if (slope > maxSlope)
+                {
+                    maxSlope = slope;
+                    otherX = adjacentX;
+                    otherY = y;
+                }
+            }
+
+            adjacentX = Globals.WrappedCoord(
+                x + 1, parameters.Width + 1, parameters.WrapX);
+            if (adjacentX != -1)
+            {
+                slope = (elevation - CornerElevation(adjacentX, y)) / (parameters.TileScale.x * Globals.KmToM);
+                if (slope > maxSlope)
+                {
+                    maxSlope = slope;
+                    otherX = adjacentX;
+                    otherY = y;
+                }
+            }
+
+            int adjacentY = Globals.WrappedCoord(
+                y - 1, parameters.Height + 1, parameters.WrapY);
+            if (adjacentY != -1)
+            {
+                slope = (elevation - CornerElevation(x, adjacentY)) / (parameters.TileScale.y * Globals.KmToM);
+                if (slope > maxSlope)
+                {
+                    maxSlope = slope;
+                    otherX = x;
+                    otherY = adjacentY;
+                }
+            }
+
+            adjacentY = Globals.WrappedCoord(
+                y + 1, parameters.Height + 1, parameters.WrapY);
+            if (adjacentY != -1)
+            {
+                slope = (elevation - CornerElevation(x, adjacentY)) / (parameters.TileScale.y * Globals.KmToM);
+                if (slope > maxSlope)
+                {
+                    maxSlope = slope;
+                    otherX = x;
+                    otherY = adjacentY;
+                }
+            }
+
+            return maxSlope;
+        }
+
+        protected virtual float CornerPrecipitation(int x, int y)
+        {
+            float sum = currentMap.GetTile<Tile>(new Vector3Int(x, y, 0)).Precipitation;
+            int count = 1;
+
+            int adjacentX = Globals.WrappedCoord(
+                x - 1, parameters.Width, parameters.WrapX);
+            int adjacentY = Globals.WrappedCoord(
+                y - 1, parameters.Height, parameters.WrapY);
+
+            if (adjacentX != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, y, 0)).Precipitation;
+                count++;
+            }
+
+            if (adjacentY != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(x, adjacentY, 0)).Precipitation;
+                count++;
+            }
+
+            if (adjacentX != -1 && adjacentY != -1)
+            {
+                sum += currentMap.GetTile<Tile>(new Vector3Int(adjacentX, adjacentY, 0)).Precipitation;
+                count++;
+            }
+
+            return sum / count;
+        }
+
+        protected virtual float RiverProbability(int x, int y)
+        {
+            int outX, outY;
+            return 4.0f * Mathf.Atan(parameters.RiverRainfallMultiplier * CornerPrecipitation(x, y)) * Mathf.Atan(parameters.RiverSlopeMultiplier * SteepestSlope(x, y, out outX, out outY)) / (Mathf.PI * Mathf.PI);
+        }
+
         // Set an appropriate tile type and its sprite for each tile
         protected virtual void SelectBiomes()
         {

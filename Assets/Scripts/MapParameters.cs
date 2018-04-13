@@ -293,6 +293,26 @@ namespace WorldMapGen
         }
 
         [SerializeField]
+        [Tooltip("The higher this value, the more likely rivers are to form " +
+                 "as precipitation increases.")]
+        protected float riverRainfallMultiplier;
+        public float RiverRainfallMultiplier
+        {
+            get { return riverRainfallMultiplier; }
+            set { riverRainfallMultiplier = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("The higher this value, the more likely rivers are to form " +
+                 "as the downslope becomes steeper.")]
+        protected float riverSlopeMultiplier;
+        public float RiverSlopeMultiplier
+        {
+            get { return riverSlopeMultiplier; }
+            set { riverSlopeMultiplier = value; }
+        }
+
+        [SerializeField]
         [Tooltip("Sprite for the start of a river flowing up.")]
         protected Sprite riverSourceUpSprite;
         public Sprite RiverSourceUpSprite
@@ -676,6 +696,13 @@ namespace WorldMapGen
                 saturationPressureConst2 =
                     Globals.IncrementFloat(highTemperature);
             }
+
+            // If these values were negative, river probabilities could be
+            // negative
+            riverRainfallMultiplier = Mathf.Clamp(
+                riverRainfallMultiplier, 0.0f, float.PositiveInfinity);
+            riverSlopeMultiplier = Mathf.Clamp(
+                riverSlopeMultiplier, 0.0f, float.PositiveInfinity);
         }
     }
 }

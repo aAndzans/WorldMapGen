@@ -25,29 +25,6 @@ namespace WorldMapGen
         // Directions in which this RiverTile is connected to other RiverTiles
         public Directions Connections { get; set; }
 
-        // Return whether the Tile at the given position is an ocean tile
-        // Automatically wrap position on wrapping dimensions
-        protected static bool CheckOcean(Vector3Int position, ITilemap tilemap)
-        {
-            // position is outside map on X
-            if (position.x < 0 || position.x >= Parameters.Width)
-            {
-                // Wrap the coordinate
-                if (Parameters.WrapX) position.x %= Parameters.Width;
-                // Not on map
-                else return false;
-            }
-
-            // position is outside map on Y
-            if (position.y < 0 || position.x >= Parameters.Height)
-            {
-                if (Parameters.WrapY) position.y %= Parameters.Height;
-                else return false;
-            }
-
-            return tilemap.GetTile<Tile>(position).Elevation < 0.0f;
-        }
-
         // Set the correct sprite for a tile connected in 1 direction
         // The Sprite arguments should show variations for the same direction
         // depending on adjacent ocean tiles
@@ -60,15 +37,23 @@ namespace WorldMapGen
         {
             // Is there an ocean tile on the left bank?
             Vector3Int checkOceanPos = new Vector3Int(
-                position.x + checkOceanLeft.x,
-                position.y + checkOceanLeft.y, 0);
-            bool leftOcean = CheckOcean(checkOceanPos, tilemap);
+                Globals.WrappedCoord(position.x + checkOceanLeft.x,
+                                     Parameters.Width, Parameters.WrapX),
+                Globals.WrappedCoord(position.y + checkOceanLeft.y,
+                                     Parameters.Height, Parameters.WrapY), 0);
+            bool leftOcean =
+                checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
+                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
 
             // Is there an ocean tile on the right bank?
             checkOceanPos = new Vector3Int(
-                position.x + checkOceanLeft.x,
-                position.y + checkOceanLeft.y, 0);
-            bool rightOcean = CheckOcean(checkOceanPos, tilemap);
+                Globals.WrappedCoord(position.x + checkOceanRight.x,
+                                     Parameters.Width, Parameters.WrapX),
+                Globals.WrappedCoord(position.y + checkOceanRight.y,
+                                     Parameters.Height, Parameters.WrapY), 0);
+            bool rightOcean =
+                checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
+                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
 
             if (leftOcean && rightOcean)
             {
@@ -101,8 +86,14 @@ namespace WorldMapGen
             Sprite bend, Sprite mouth)
         {
             Vector3Int checkOceanPos = new Vector3Int(
-                position.x + checkOcean.x, position.y + checkOcean.y, 0);
-            bool ocean = CheckOcean(checkOceanPos, tilemap);
+                Globals.WrappedCoord(position.x + checkOcean.x,
+                                     Parameters.Width, Parameters.WrapX),
+                Globals.WrappedCoord(position.y + checkOcean.y,
+                                     Parameters.Height, Parameters.WrapY), 0);
+            bool ocean =
+                checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
+                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
+
             if (ocean)
             {
                 // Two rivers' mouth
