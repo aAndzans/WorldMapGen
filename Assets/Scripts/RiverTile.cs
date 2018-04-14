@@ -10,9 +10,9 @@ namespace WorldMapGen
         [System.Flags]
         public enum Directions
         {
-            Up =    1,
-            Down =  1 << 1,
-            Left =  1 << 2,
+            Up = 1,
+            Down = 1 << 1,
+            Left = 1 << 2,
             Right = 1 << 3
         }
 
@@ -206,6 +206,18 @@ namespace WorldMapGen
             }
 
             base.RefreshTile(position, tilemap);
+        }
+
+        public override void GetTileData(
+            Vector3Int position, ITilemap tilemap, ref TileData tileData)
+        {
+            base.GetTileData(position, tilemap, ref tileData);
+            
+            // Offset to the upper left by half of the sprite's size
+            tileData.transform = Matrix4x4.TRS(
+                new Vector3(
+                    -sprite.bounds.extents.x, sprite.bounds.extents.y, 0.0f),
+                Quaternion.identity, Vector3.one);
         }
     }
 }
