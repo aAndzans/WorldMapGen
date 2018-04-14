@@ -17,7 +17,7 @@ namespace WorldMapGen
         }
 
         // Parameters used for world generation
-        public static MapParameters Parameters { get; set; }
+        public MapParameters Parameters { get; set; }
 
         // Directions in which this RiverTile is connected to other RiverTiles
         public Directions Connections { get; set; }

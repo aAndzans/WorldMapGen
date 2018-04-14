@@ -665,6 +665,7 @@ namespace WorldMapGen
             // Create the new river tile and set its connection to the previous
             // one
             RiverTile newTile = ScriptableObject.CreateInstance<RiverTile>();
+            newTile.Parameters = parameters;
             newTile.Connections = prevDirection;
             currentMap.SetTile(new Vector3Int(x, y, 1), newTile);
 
