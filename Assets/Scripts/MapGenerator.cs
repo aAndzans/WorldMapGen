@@ -747,72 +747,91 @@ namespace WorldMapGen
             }
         }
 
+        // Output coordinates of the tiles adjacent to the given corner
+        // coordinates
+        // If applicable, the output coordinates are wrapped
+        // For any coordinates that do not contain a tile, output -1
+        // x: corner X coordinate; outputs X coordinate of tiles to the right
+        // y: corner Y coordinate; outputs Y coordinate of tiles below
+        // leftX: outputs X coordinate of tiles to the left
+        // upY: outputs Y coordinate of tiles above
+        protected virtual void WrappedCornerTiles(
+            ref int x, ref int y, out int leftX, out int upY)
+        {
+            leftX = Globals.WrappedCoord(
+                x - 1, parameters.Width, parameters.WrapX);
+            upY = Globals.WrappedCoord(
+                y - 1, parameters.Height, parameters.WrapY);
+            x = Globals.WrappedCoord(x, parameters.Width, parameters.WrapX);
+            y = Globals.WrappedCoord(y, parameters.Height, parameters.WrapY);
+        }
+
+        // Return true if any of the tiles around the given corner are ocean
+        // tiles
         protected virtual bool CornerAtOcean(int x, int y)
         {
-            // X coordinate for tiles on the left
-            int adjacentX = Globals.WrappedCoord(
-                x - 1, parameters.Width, parameters.WrapX);
-            // Y coordinate for tiles above
-            int adjacentY = Globals.WrappedCoord(
-                y - 1, parameters.Height, parameters.WrapY);
+            // Get the coordinates of the adjacent tiles
+            int leftX, upY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
 
             // Lower right
-            return currentMap.GetTile<Tile>(
-                new Vector3Int(x, y, 0)).Elevation < 0.0f ||
-            // Lower left
-            adjacentX != -1 &&
-            currentMap.GetTile<Tile>(
-                new Vector3Int(
-                    adjacentX, y, 0)).Elevation < 0.0f ||
-            // Upper right
-            adjacentY != -1 &&
-            currentMap.GetTile<Tile>(
-                new Vector3Int(
-                    x, adjacentY, 0)).Elevation < 0.0f ||
-            // Upper left
-            adjacentX != -1 && adjacentY != -1 &&
-            currentMap.GetTile<Tile>(
-                new Vector3Int(
-                    adjacentX, adjacentY, 0)).Elevation < 0.0f;
+            return
+                x != -1 && y != -1 &&
+                currentMap.GetTile<Tile>(
+                    new Vector3Int(x, y, 0)).Elevation < 0.0f ||
+                // Lower left
+                leftX != -1 && y != -1 &&
+                currentMap.GetTile<Tile>(
+                    new Vector3Int(leftX, y, 0)).Elevation < 0.0f ||
+                // Upper right
+                x != -1 && upY != -1 &&
+                currentMap.GetTile<Tile>(
+                    new Vector3Int(x, upY, 0)).Elevation < 0.0f ||
+                // Upper left
+                leftX != -1 && upY != -1 &&
+                currentMap.GetTile<Tile>(
+                    new Vector3Int(leftX, upY, 0)).Elevation < 0.0f;
         }
 
         // Calculate the average elevation of the 4 tiles around the given
         // corner coordinates
         protected virtual float CornerElevation(int x, int y)
         {
+            // Get the coordinates of the adjacent tiles
+            int leftX, upY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
+
+            // Sum of tile elevations around this corner
+            float sum = 0.0f;
+            // Number of tiles around this corner
+            int count = 0;
+
             // Lower right
-            float sum = currentMap.GetTile<Tile>(
-                new Vector3Int(x, y, 0)).Elevation;
-            int count = 1;
-
-            // X coordinate for tiles on the left
-            int adjacentX = Globals.WrappedCoord(
-                x - 1, parameters.Width, parameters.WrapX);
-            // Y coordinate for tiles above
-            int adjacentY = Globals.WrappedCoord(
-                y - 1, parameters.Height, parameters.WrapY);
-
+            if (x != -1 && y != -1)
+            {
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(x, y, 0)).Elevation;
+                count++;
+            }
             // Lower left
-            if (adjacentX != -1)
+            if (leftX != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(adjacentX, y, 0)).Elevation;
+                    new Vector3Int(leftX, y, 0)).Elevation;
                 count++;
             }
-
             // Upper right
-            if (adjacentY != -1)
+            if (x != -1 && upY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(x, adjacentY, 0)).Elevation;
+                    new Vector3Int(x, upY, 0)).Elevation;
                 count++;
             }
-
             // Upper left
-            if (adjacentX != -1 && adjacentY != -1)
+            if (leftX != -1 && upY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(adjacentX, adjacentY, 0)).Elevation;
+                    new Vector3Int(leftX, upY, 0)).Elevation;
                 count++;
             }
 
@@ -902,39 +921,41 @@ namespace WorldMapGen
         // corner coordinates
         protected virtual float CornerPrecipitation(int x, int y)
         {
+            // Get the coordinates of the adjacent tiles
+            int leftX, upY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
+
+            // Sum of tile precipitations around this corner
+            float sum = 0.0f;
+            // Number of tiles around this corner
+            int count = 0;
+
             // Lower right
-            float sum = currentMap.GetTile<Tile>(
-                new Vector3Int(x, y, 0)).Precipitation;
-            int count = 1;
-
-            // X coordinate for tiles on the left
-            int adjacentX = Globals.WrappedCoord(
-                x - 1, parameters.Width, parameters.WrapX);
-            // Y coordinate for tiles above
-            int adjacentY = Globals.WrappedCoord(
-                y - 1, parameters.Height, parameters.WrapY);
-
+            if (x != -1 && y != -1)
+            {
+                sum += currentMap.GetTile<Tile>(
+                    new Vector3Int(x, y, 0)).Precipitation;
+                count++;
+            }
             // Lower left
-            if (adjacentX != -1)
+            if (leftX != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(adjacentX, y, 0)).Precipitation;
+                    new Vector3Int(leftX, y, 0)).Precipitation;
                 count++;
             }
-
             // Upper right
-            if (adjacentY != -1)
+            if (x != -1 && upY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(x, adjacentY, 0)).Precipitation;
+                    new Vector3Int(x, upY, 0)).Precipitation;
                 count++;
             }
-
             // Upper left
-            if (adjacentX != -1 && adjacentY != -1)
+            if (leftX != -1 && upY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(adjacentX, adjacentY, 0)).Precipitation;
+                    new Vector3Int(leftX, upY, 0)).Precipitation;
                 count++;
             }
 
