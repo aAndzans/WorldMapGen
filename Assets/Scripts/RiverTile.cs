@@ -19,6 +19,9 @@ namespace WorldMapGen
         // Parameters used for world generation
         public MapParameters Parameters { get; set; }
 
+        // Tilemap containing the corresponding land tiles
+        public Tilemap LandTilemap { get; set; }
+
         // Directions in which this RiverTile is connected to other RiverTiles
         public Directions Connections { get; set; }
 
@@ -40,7 +43,7 @@ namespace WorldMapGen
                                      Parameters.Height, Parameters.WrapY), 0);
             bool leftOcean =
                 checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
-                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
+                LandTilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
 
             // Is there an ocean tile on the right bank?
             checkOceanPos = new Vector3Int(
@@ -50,7 +53,7 @@ namespace WorldMapGen
                                      Parameters.Height, Parameters.WrapY), 0);
             bool rightOcean =
                 checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
-                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
+                LandTilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
 
             if (leftOcean && rightOcean)
             {
@@ -89,7 +92,7 @@ namespace WorldMapGen
                                      Parameters.Height, Parameters.WrapY), 0);
             bool ocean =
                 checkOceanPos.x != -1 && checkOceanPos.y != -1 &&
-                tilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
+                LandTilemap.GetTile<Tile>(checkOceanPos).Elevation < 0.0f;
 
             if (ocean)
             {
@@ -111,8 +114,8 @@ namespace WorldMapGen
                 // Connection in 1 direction
                 case Directions.Up:
                     Set1ConnectionSprite(
-                        position, Vector2Int.zero,
-                        new Vector2Int(-1, 0), tilemap,
+                        position, new Vector2Int(0, -1),
+                        new Vector2Int(-1, -1), tilemap,
                         Parameters.RiverSourceUpSprite,
                         Parameters.RiverMouthStraightUpSprite,
                         Parameters.RiverMouthLeftUpSprite,
@@ -120,8 +123,8 @@ namespace WorldMapGen
                     break;
                 case Directions.Left:
                     Set1ConnectionSprite(
-                        position, new Vector2Int(0, -1),
-                        Vector2Int.zero, tilemap,
+                        position, Vector2Int.zero,
+                        new Vector2Int(0, -1), tilemap,
                         Parameters.RiverSourceLeftSprite,
                         Parameters.RiverMouthStraightLeftSprite,
                         Parameters.RiverMouthLeftLeftSprite,
@@ -129,8 +132,8 @@ namespace WorldMapGen
                     break;
                 case Directions.Down:
                     Set1ConnectionSprite(
-                        position, new Vector2Int(-1, -1),
-                        new Vector2Int(0, -1), tilemap,
+                        position, new Vector2Int(-1, 0),
+                        Vector2Int.zero, tilemap,
                         Parameters.RiverSourceDownSprite,
                         Parameters.RiverMouthStraightDownSprite,
                         Parameters.RiverMouthLeftDownSprite,
@@ -138,8 +141,8 @@ namespace WorldMapGen
                     break;
                 case Directions.Right:
                     Set1ConnectionSprite(
-                        position, new Vector2Int(-1, 0),
-                        new Vector2Int(-1, -1), tilemap,
+                        position, new Vector2Int(-1, -1),
+                        new Vector2Int(-1, 0), tilemap,
                         Parameters.RiverSourceRightSprite,
                         Parameters.RiverMouthStraightRightSprite,
                         Parameters.RiverMouthLeftRightSprite,
@@ -149,25 +152,25 @@ namespace WorldMapGen
                 // 2 connections in L shape
                 case Directions.Right | Directions.Up:
                     SetLSprite(
-                        position, new Vector2Int(-1, 0), tilemap,
+                        position, new Vector2Int(-1, -1), tilemap,
                         Parameters.RiverLRightUpSprite,
                         Parameters.RiverMouthLRightUpSprite);
                     break;
                 case Directions.Up | Directions.Left:
                     SetLSprite(
-                        position, Vector2Int.zero, tilemap,
+                        position, new Vector2Int(0, -1), tilemap,
                         Parameters.RiverLUpLeftSprite,
                         Parameters.RiverMouthLUpLeftSprite);
                     break;
                 case Directions.Left | Directions.Down:
                     SetLSprite(
-                        position, new Vector2Int(0, -1), tilemap,
+                        position, Vector2Int.zero, tilemap,
                         Parameters.RiverLLeftDownSprite,
                         Parameters.RiverMouthLLeftDownSprite);
                     break;
                 case Directions.Down | Directions.Right:
                     SetLSprite(
-                        position, new Vector2Int(-1, -1), tilemap,
+                        position, new Vector2Int(-1, 0), tilemap,
                         Parameters.RiverLDownRightSprite,
                         Parameters.RiverMouthLDownRightSprite);
                     break;
@@ -206,18 +209,6 @@ namespace WorldMapGen
             }
 
             base.RefreshTile(position, tilemap);
-        }
-
-        public override void GetTileData(
-            Vector3Int position, ITilemap tilemap, ref TileData tileData)
-        {
-            base.GetTileData(position, tilemap, ref tileData);
-            
-            // Offset to the upper left by half of the sprite's size
-            tileData.transform = Matrix4x4.TRS(
-                new Vector3(
-                    -sprite.bounds.extents.x, sprite.bounds.extents.y, 0.0f),
-                Quaternion.identity, Vector3.one);
         }
     }
 }

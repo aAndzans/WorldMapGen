@@ -26,15 +26,16 @@ namespace WorldMapGen
             set { parameters = value; }
         }
 
-        // Map currently being generated
+        // Maps currently being generated
         protected Tilemap currentMap;
+        protected Tilemap currentRiverMap;
 
         // Map's dimensions in km
         protected Vector2 scaledSize;
 
-        // Procedurally generate a map, storing it in the given tilemap
+        // Procedurally generate a map, storing it in the given tilemaps
         // Return the random seed used for generation
-        public virtual int GenerateMap(Tilemap map)
+        public virtual int GenerateMap(Tilemap map, Tilemap riverMap)
         {
             // Store the existing random state
             Random.State oldState = Random.state;
@@ -53,6 +54,7 @@ namespace WorldMapGen
             Random.InitState(randomSeed);
 
             currentMap = map;
+            currentRiverMap = riverMap;
             scaledSize = ScaleCoords(parameters.Width, parameters.Height);
 
             CreateTiles();
@@ -64,6 +66,8 @@ namespace WorldMapGen
 
             currentMap.RefreshAllTiles();
             currentMap = null;
+            currentRiverMap.RefreshAllTiles();
+            currentRiverMap = null;
 
             // Restore the random state outside the generator
             Random.state = oldState;
@@ -639,11 +643,12 @@ namespace WorldMapGen
             // Check all tile corners
             for (int i = 0; i < cornersHeight; i++)
             {
-                for (int j = 0; j < cornersWidth; i++)
+                for (int j = 0; j < cornersWidth; j++)
                 {
-                    // River tiles are at Z=1
+                    // Try to get the river tile at the corner
                     RiverTile currentCorner =
-                        currentMap.GetTile<RiverTile>(new Vector3Int(j, i, 1));
+                        currentRiverMap.GetTile<RiverTile>(
+                            new Vector3Int(j, i, 0));
                     // Skip if there is already a river here or if next to
                     // ocean
                     if (currentCorner || CornerAtOcean(j, i)) continue;
@@ -667,8 +672,76 @@ namespace WorldMapGen
             // one
             RiverTile newTile = ScriptableObject.CreateInstance<RiverTile>();
             newTile.Parameters = parameters;
+            newTile.LandTilemap = currentMap;
             newTile.Connections = prevDirection;
-            currentMap.SetTile(new Vector3Int(x, y, 1), newTile);
+
+            // Stop if reached ocean
+            if (!CornerAtOcean(x, y))
+            {
+                // Next river tile is down the steepest downslope
+                int nextX, nextY;
+                SteepestSlope(x, y, out nextX, out nextY);
+
+                // Stop if there is no downslope
+                if (nextX != -1 && nextY != -1)
+                {
+                    // Try to get existing river tile at next position
+                    RiverTile nextCorner = currentRiverMap.GetTile<RiverTile>(
+                        new Vector3Int(nextX, nextY, 0));
+
+                    // Check direction of next river tile
+                    // Left
+                    if (nextX < x)
+                    {
+                        // Set connection to the next river tile
+                        newTile.Connections |= RiverTile.Directions.Left;
+                        // If next river tile already exists, set its
+                        // connection to the current tile and stop
+                        if (nextCorner)
+                            nextCorner.Connections |=
+                                RiverTile.Directions.Right;
+                        // Recursively continue river generation
+                        else
+                            ContinueRiver(
+                                nextX, nextY, RiverTile.Directions.Right);
+                    }
+                    // Right
+                    else if (nextX > x)
+                    {
+                        newTile.Connections |= RiverTile.Directions.Right;
+                        if (nextCorner)
+                            nextCorner.Connections |=
+                                RiverTile.Directions.Left;
+                        else
+                            ContinueRiver(
+                                nextX, nextY, RiverTile.Directions.Left);
+                    }
+                    // Up
+                    else if (nextY > y)
+                    {
+                        newTile.Connections |= RiverTile.Directions.Up;
+                        if (nextCorner)
+                            nextCorner.Connections |=
+                                RiverTile.Directions.Down;
+                        else
+                            ContinueRiver(
+                                nextX, nextY, RiverTile.Directions.Down);
+                    }
+                    // Down
+                    else if (nextY < y)
+                    {
+                        newTile.Connections |= RiverTile.Directions.Down;
+                        if (nextCorner)
+                            nextCorner.Connections |=
+                                RiverTile.Directions.Up;
+                        else
+                            ContinueRiver(
+                                nextX, nextY, RiverTile.Directions.Up);
+                    }
+                }
+            }
+
+            currentRiverMap.SetTile(new Vector3Int(x, y, 0), newTile);
 
             // If the river is on a wrapping edge, place the same river tile on
             // the opposite side
@@ -679,73 +752,21 @@ namespace WorldMapGen
             if (wrapX)
             {
                 // Horizontally
-                currentMap.SetTile(
-                    new Vector3Int(parameters.Width - x, y, 1), newTile);
+                currentRiverMap.SetTile(
+                    new Vector3Int(parameters.Width - x, y, 0), newTile);
             }
             if (wrapY)
             {
                 // Vertically
-                currentMap.SetTile(
-                    new Vector3Int(x, parameters.Height - y, 1), newTile);
+                currentRiverMap.SetTile(
+                    new Vector3Int(x, parameters.Height - y, 0), newTile);
             }
             if (wrapX && wrapY)
             {
                 // Corner wrapping in both dimensions
-                currentMap.SetTile(
+                currentRiverMap.SetTile(
                     new Vector3Int(parameters.Width - x,
-                                   parameters.Height - y, 1), newTile);
-            }
-
-            // Stop if reached ocean
-            if (CornerAtOcean(x, y)) return;
-
-            // Next river tile is down the steepest downslope
-            int nextX, nextY;
-            SteepestSlope(x, y, out nextX, out nextY);
-
-            // Stop if there is no downslope
-            if (nextX == -1 || nextY == -1) return;
-
-            // Try to get existing river tile at next position
-            RiverTile nextCorner =
-                currentMap.GetTile<RiverTile>(new Vector3Int(nextX, nextY, 1));
-
-            // Check direction of next river tile
-            // Left
-            if (nextX < x)
-            {
-                // Set connection to the next river tile
-                newTile.Connections |= RiverTile.Directions.Left;
-                // If next river tile already exists, set its connection to the
-                // current tile and stop
-                if (nextCorner)
-                    nextCorner.Connections |= RiverTile.Directions.Right;
-                // Recursively continue river generation
-                else ContinueRiver(nextX, nextY, RiverTile.Directions.Right);
-            }
-            // Right
-            else if (nextX > x)
-            {
-                newTile.Connections |= RiverTile.Directions.Right;
-                if (nextCorner)
-                    nextCorner.Connections |= RiverTile.Directions.Left;
-                else ContinueRiver(nextX, nextY, RiverTile.Directions.Left);
-            }
-            // Up
-            else if (nextY < y)
-            {
-                newTile.Connections |= RiverTile.Directions.Up;
-                if (nextCorner)
-                    nextCorner.Connections |= RiverTile.Directions.Down;
-                else ContinueRiver(nextX, nextY, RiverTile.Directions.Down);
-            }
-            // Down
-            else if (nextY > y)
-            {
-                newTile.Connections |= RiverTile.Directions.Down;
-                if (nextCorner)
-                    nextCorner.Connections |= RiverTile.Directions.Up;
-                else ContinueRiver(nextX, nextY, RiverTile.Directions.Up);
+                                   parameters.Height - y, 0), newTile);
             }
         }
 
@@ -754,15 +775,15 @@ namespace WorldMapGen
         // If applicable, the output coordinates are wrapped
         // For any coordinates that do not contain a tile, output -1
         // x: corner X coordinate; outputs X coordinate of tiles to the right
-        // y: corner Y coordinate; outputs Y coordinate of tiles below
+        // y: corner Y coordinate; outputs Y coordinate of tiles above
         // leftX: outputs X coordinate of tiles to the left
-        // upY: outputs Y coordinate of tiles above
+        // downY: outputs Y coordinate of tiles below
         protected virtual void WrappedCornerTiles(
-            ref int x, ref int y, out int leftX, out int upY)
+            ref int x, ref int y, out int leftX, out int downY)
         {
             leftX = Globals.WrappedCoord(
                 x - 1, parameters.Width, parameters.WrapX);
-            upY = Globals.WrappedCoord(
+            downY = Globals.WrappedCoord(
                 y - 1, parameters.Height, parameters.WrapY);
             x = Globals.WrappedCoord(x, parameters.Width, parameters.WrapX);
             y = Globals.WrappedCoord(y, parameters.Height, parameters.WrapY);
@@ -773,26 +794,26 @@ namespace WorldMapGen
         protected virtual bool CornerAtOcean(int x, int y)
         {
             // Get the coordinates of the adjacent tiles
-            int leftX, upY;
-            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
+            int leftX, downY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out downY);
 
-            // Lower right
             return
+                // Upper right
                 x != -1 && y != -1 &&
                 currentMap.GetTile<Tile>(
                     new Vector3Int(x, y, 0)).Elevation < 0.0f ||
-                // Lower left
+                // Upper left
                 leftX != -1 && y != -1 &&
                 currentMap.GetTile<Tile>(
                     new Vector3Int(leftX, y, 0)).Elevation < 0.0f ||
-                // Upper right
-                x != -1 && upY != -1 &&
+                // Lower right
+                x != -1 && downY != -1 &&
                 currentMap.GetTile<Tile>(
-                    new Vector3Int(x, upY, 0)).Elevation < 0.0f ||
-                // Upper left
-                leftX != -1 && upY != -1 &&
+                    new Vector3Int(x, downY, 0)).Elevation < 0.0f ||
+                // Lower left
+                leftX != -1 && downY != -1 &&
                 currentMap.GetTile<Tile>(
-                    new Vector3Int(leftX, upY, 0)).Elevation < 0.0f;
+                    new Vector3Int(leftX, downY, 0)).Elevation < 0.0f;
         }
 
         // Calculate the average elevation of the 4 tiles around the given
@@ -800,40 +821,40 @@ namespace WorldMapGen
         protected virtual float CornerElevation(int x, int y)
         {
             // Get the coordinates of the adjacent tiles
-            int leftX, upY;
-            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
+            int leftX, downY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out downY);
 
             // Sum of tile elevations around this corner
             float sum = 0.0f;
             // Number of tiles around this corner
             int count = 0;
 
-            // Lower right
+            // Upper right
             if (x != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
                     new Vector3Int(x, y, 0)).Elevation;
                 count++;
             }
-            // Lower left
+            // Upper left
             if (leftX != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
                     new Vector3Int(leftX, y, 0)).Elevation;
                 count++;
             }
-            // Upper right
-            if (x != -1 && upY != -1)
+            // Lower right
+            if (x != -1 && downY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(x, upY, 0)).Elevation;
+                    new Vector3Int(x, downY, 0)).Elevation;
                 count++;
             }
-            // Upper left
-            if (leftX != -1 && upY != -1)
+            // Lower left
+            if (leftX != -1 && downY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(leftX, upY, 0)).Elevation;
+                    new Vector3Int(leftX, downY, 0)).Elevation;
                 count++;
             }
 
@@ -886,7 +907,7 @@ namespace WorldMapGen
                 }
             }
 
-            // Up
+            // Down
             int adjacentY = Globals.WrappedCoord(
                 y - 1, parameters.Height + 1, parameters.WrapY);
             if (adjacentY != -1)
@@ -901,7 +922,7 @@ namespace WorldMapGen
                 }
             }
 
-            // Down
+            // Up
             adjacentY = Globals.WrappedCoord(
                 y + 1, parameters.Height + 1, parameters.WrapY);
             if (adjacentY != -1)
@@ -924,40 +945,40 @@ namespace WorldMapGen
         protected virtual float CornerPrecipitation(int x, int y)
         {
             // Get the coordinates of the adjacent tiles
-            int leftX, upY;
-            WrappedCornerTiles(ref x, ref y, out leftX, out upY);
+            int leftX, downY;
+            WrappedCornerTiles(ref x, ref y, out leftX, out downY);
 
             // Sum of tile precipitations around this corner
             float sum = 0.0f;
             // Number of tiles around this corner
             int count = 0;
 
-            // Lower right
+            // Upper right
             if (x != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
                     new Vector3Int(x, y, 0)).Precipitation;
                 count++;
             }
-            // Lower left
+            // Upper left
             if (leftX != -1 && y != -1)
             {
                 sum += currentMap.GetTile<Tile>(
                     new Vector3Int(leftX, y, 0)).Precipitation;
                 count++;
             }
-            // Upper right
-            if (x != -1 && upY != -1)
+            // Lower right
+            if (x != -1 && downY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(x, upY, 0)).Precipitation;
+                    new Vector3Int(x, downY, 0)).Precipitation;
                 count++;
             }
-            // Upper left
-            if (leftX != -1 && upY != -1)
+            // Lower left
+            if (leftX != -1 && downY != -1)
             {
                 sum += currentMap.GetTile<Tile>(
-                    new Vector3Int(leftX, upY, 0)).Precipitation;
+                    new Vector3Int(leftX, downY, 0)).Precipitation;
                 count++;
             }
 
@@ -973,7 +994,7 @@ namespace WorldMapGen
 
             return 4.0f *
                 Mathf.Atan(parameters.RiverRainfallMultiplier *
-                                  CornerPrecipitation(x, y)) *
+                           CornerPrecipitation(x, y)) *
                 Mathf.Atan(parameters.RiverSlopeMultiplier * 
                            SteepestSlope(x, y, out outX, out outY)) /
                 (Mathf.PI * Mathf.PI);

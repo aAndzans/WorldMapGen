@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: MapBase
+    uniqueID: 4139794787
+    locked: 0
+  - name: Rivers
+    uniqueID: 2413933187
+    locked: 0
