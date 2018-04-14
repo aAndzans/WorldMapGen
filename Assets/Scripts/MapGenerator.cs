@@ -656,59 +656,93 @@ namespace WorldMapGen
             }
         }
 
-        // Place a river at the given corner, then determine the next corner in the river and, if necessary, call this function for that corner
-        protected virtual void ContinueRiver(int x, int y, RiverTile.Directions prevDirection)
+        // Place a river at the given corner, then determine the next corner in
+        // the river and, if necessary, call this function for that corner
+        // prevDirection is the direction that the previous corner is in
+        protected virtual void ContinueRiver(
+            int x, int y, RiverTile.Directions prevDirection)
         {
+            // Create the new river tile and set its connection to the previous
+            // one
             RiverTile newTile = ScriptableObject.CreateInstance<RiverTile>();
             newTile.Connections = prevDirection;
             currentMap.SetTile(new Vector3Int(x, y, 1), newTile);
-            bool wrapX = parameters.WrapX && (x == 0 || x == parameters.Width);
-            bool wrapY = parameters.WrapY && (y == 0 || y == parameters.Height);
+
+            // If the river is on a wrapping edge, place the same river tile on
+            // the opposite side
+            bool wrapX =
+                parameters.WrapX && (x == 0 || x == parameters.Width);
+            bool wrapY =
+                parameters.WrapY && (y == 0 || y == parameters.Height);
             if (wrapX)
             {
-                currentMap.SetTile(new Vector3Int(parameters.Width - x, y, 1), newTile);
+                // Horizontally
+                currentMap.SetTile(
+                    new Vector3Int(parameters.Width - x, y, 1), newTile);
             }
             if (wrapY)
             {
-                currentMap.SetTile(new Vector3Int(x, parameters.Height - y, 1), newTile);
+                // Vertically
+                currentMap.SetTile(
+                    new Vector3Int(x, parameters.Height - y, 1), newTile);
             }
             if (wrapX && wrapY)
             {
-                currentMap.SetTile(new Vector3Int(parameters.Width - x, parameters.Height - y, 1), newTile);
+                // Corner wrapping in both dimensions
+                currentMap.SetTile(
+                    new Vector3Int(parameters.Width - x,
+                                   parameters.Height - y, 1), newTile);
             }
 
+            // Stop if reached ocean
             if (CornerAtOcean(x, y)) return;
 
+            // Next river tile is down the steepest downslope
             int nextX, nextY;
             SteepestSlope(x, y, out nextX, out nextY);
 
+            // Stop if there is no downslope
             if (nextX == -1 || nextY == -1) return;
 
+            // Try to get existing river tile at next position
             RiverTile nextCorner =
-                        currentMap.GetTile<RiverTile>(new Vector3Int(nextX, nextY, 1));
+                currentMap.GetTile<RiverTile>(new Vector3Int(nextX, nextY, 1));
 
+            // Check direction of next river tile
+            // Left
             if (nextX < x)
             {
+                // Set connection to the next river tile
                 newTile.Connections |= RiverTile.Directions.Left;
-                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Right;
+                // If next river tile already exists, set its connection to the
+                // current tile and stop
+                if (nextCorner)
+                    nextCorner.Connections |= RiverTile.Directions.Right;
+                // Recursively continue river generation
                 else ContinueRiver(nextX, nextY, RiverTile.Directions.Right);
             }
+            // Right
             else if (nextX > x)
             {
                 newTile.Connections |= RiverTile.Directions.Right;
-                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Left;
+                if (nextCorner)
+                    nextCorner.Connections |= RiverTile.Directions.Left;
                 else ContinueRiver(nextX, nextY, RiverTile.Directions.Left);
             }
+            // Up
             else if (nextY < y)
             {
                 newTile.Connections |= RiverTile.Directions.Up;
-                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Down;
+                if (nextCorner)
+                    nextCorner.Connections |= RiverTile.Directions.Down;
                 else ContinueRiver(nextX, nextY, RiverTile.Directions.Down);
             }
+            // Down
             else if (nextY > y)
             {
                 newTile.Connections |= RiverTile.Directions.Down;
-                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Up;
+                if (nextCorner)
+                    nextCorner.Connections |= RiverTile.Directions.Up;
                 else ContinueRiver(nextX, nextY, RiverTile.Directions.Up);
             }
         }
