@@ -59,6 +59,7 @@ namespace WorldMapGen
             GenerateElevation();
             GenerateTemperature();
             GenerateRainfall();
+            GenerateRivers();
             SelectBiomes();
 
             currentMap.RefreshAllTiles();
