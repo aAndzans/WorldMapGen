@@ -641,49 +641,105 @@ namespace WorldMapGen
                 for (int j = 0; j < cornersWidth; i++)
                 {
                     // River tiles are at Z=1
-                    Vector3Int cornerCoords = new Vector3Int(j, i, 1);
                     RiverTile currentCorner =
-                        currentMap.GetTile<RiverTile>(cornerCoords);
-                    // Skip if there is already a river here
-                    if (currentCorner) continue;
-
-                    // X coordinate for tiles on the left
-                    int adjacentX = Globals.WrappedCoord(
-                        j - 1, parameters.Width, parameters.WrapX);
-                    // Y coordinate for tiles above
-                    int adjacentY = Globals.WrappedCoord(
-                        i - 1, parameters.Height, parameters.WrapY);
-
-                    // Skip if corner is adjacent to an ocean tile
-                    if (// Lower right
-                        currentMap.GetTile<Tile>(
-                            new Vector3Int(j, i, 0)).Elevation < 0.0f ||
-                        // Lower left
-                        adjacentX != -1 &&
-                        currentMap.GetTile<Tile>(
-                            new Vector3Int(
-                                adjacentX, i, 0)).Elevation < 0.0f ||
-                        // Upper right
-                        adjacentY != -1 &&
-                        currentMap.GetTile<Tile>(
-                            new Vector3Int(
-                                j, adjacentY, 0)).Elevation < 0.0f ||
-                        // Upper left
-                        adjacentX != -1 && adjacentY != -1 &&
-                        currentMap.GetTile<Tile>(
-                            new Vector3Int(
-                                adjacentX, adjacentY, 0)).Elevation < 0.0f)
-                    {
-                        continue;
-                    }
+                        currentMap.GetTile<RiverTile>(new Vector3Int(j, i, 1));
+                    // Skip if there is already a river here or if next to
+                    // ocean
+                    if (currentCorner || CornerAtOcean(j, i)) continue;
 
                     // Certain probability of starting river
                     if (Random.value < RiverProbability(j, i))
                     {
-
+                        ContinueRiver(j, i, 0);
                     }
                 }
             }
+        }
+
+        // Place a river at the given corner, then determine the next corner in the river and, if necessary, call this function for that corner
+        protected virtual void ContinueRiver(int x, int y, RiverTile.Directions prevDirection)
+        {
+            RiverTile newTile = ScriptableObject.CreateInstance<RiverTile>();
+            newTile.Connections = prevDirection;
+            currentMap.SetTile(new Vector3Int(x, y, 1), newTile);
+            bool wrapX = parameters.WrapX && (x == 0 || x == parameters.Width);
+            bool wrapY = parameters.WrapY && (y == 0 || y == parameters.Height);
+            if (wrapX)
+            {
+                currentMap.SetTile(new Vector3Int(parameters.Width - x, y, 1), newTile);
+            }
+            if (wrapY)
+            {
+                currentMap.SetTile(new Vector3Int(x, parameters.Height - y, 1), newTile);
+            }
+            if (wrapX && wrapY)
+            {
+                currentMap.SetTile(new Vector3Int(parameters.Width - x, parameters.Height - y, 1), newTile);
+            }
+
+            if (CornerAtOcean(x, y)) return;
+
+            int nextX, nextY;
+            SteepestSlope(x, y, out nextX, out nextY);
+
+            if (nextX == -1 || nextY == -1) return;
+
+            RiverTile nextCorner =
+                        currentMap.GetTile<RiverTile>(new Vector3Int(nextX, nextY, 1));
+
+            if (nextX < x)
+            {
+                newTile.Connections |= RiverTile.Directions.Left;
+                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Right;
+                else ContinueRiver(nextX, nextY, RiverTile.Directions.Right);
+            }
+            else if (nextX > x)
+            {
+                newTile.Connections |= RiverTile.Directions.Right;
+                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Left;
+                else ContinueRiver(nextX, nextY, RiverTile.Directions.Left);
+            }
+            else if (nextY < y)
+            {
+                newTile.Connections |= RiverTile.Directions.Up;
+                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Down;
+                else ContinueRiver(nextX, nextY, RiverTile.Directions.Down);
+            }
+            else if (nextY > y)
+            {
+                newTile.Connections |= RiverTile.Directions.Down;
+                if (nextCorner) nextCorner.Connections |= RiverTile.Directions.Up;
+                else ContinueRiver(nextX, nextY, RiverTile.Directions.Up);
+            }
+        }
+
+        protected virtual bool CornerAtOcean(int x, int y)
+        {
+            // X coordinate for tiles on the left
+            int adjacentX = Globals.WrappedCoord(
+                x - 1, parameters.Width, parameters.WrapX);
+            // Y coordinate for tiles above
+            int adjacentY = Globals.WrappedCoord(
+                y - 1, parameters.Height, parameters.WrapY);
+
+            // Lower right
+            return currentMap.GetTile<Tile>(
+                new Vector3Int(x, y, 0)).Elevation < 0.0f ||
+            // Lower left
+            adjacentX != -1 &&
+            currentMap.GetTile<Tile>(
+                new Vector3Int(
+                    adjacentX, y, 0)).Elevation < 0.0f ||
+            // Upper right
+            adjacentY != -1 &&
+            currentMap.GetTile<Tile>(
+                new Vector3Int(
+                    x, adjacentY, 0)).Elevation < 0.0f ||
+            // Upper left
+            adjacentX != -1 && adjacentY != -1 &&
+            currentMap.GetTile<Tile>(
+                new Vector3Int(
+                    adjacentX, adjacentY, 0)).Elevation < 0.0f;
         }
 
         // Calculate the average elevation of the 4 tiles around the given
