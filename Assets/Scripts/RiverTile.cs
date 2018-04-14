@@ -19,9 +19,6 @@ namespace WorldMapGen
         // Parameters used for world generation
         public static MapParameters Parameters { get; set; }
 
-        // Metres above sea level (average of surrounding Tiles)
-        public float Elevation { get; private set; }
-
         // Directions in which this RiverTile is connected to other RiverTiles
         public Directions Connections { get; set; }
 
