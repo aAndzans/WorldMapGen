@@ -738,36 +738,16 @@ namespace WorldMapGen
                             ContinueRiver(
                                 nextX, nextY, RiverTile.Directions.Up);
                     }
+                    // Replace next corner with updated connections
+                    if (nextCorner)
+                    {
+                        SetRiverTile(nextX, nextY, null);
+                        SetRiverTile(nextX, nextY, nextCorner);
+                    }
                 }
             }
 
-            currentRiverMap.SetTile(new Vector3Int(x, y, 0), newTile);
-
-            // If the river is on a wrapping edge, place the same river tile on
-            // the opposite side
-            bool wrapX =
-                parameters.WrapX && (x == 0 || x == parameters.Width);
-            bool wrapY =
-                parameters.WrapY && (y == 0 || y == parameters.Height);
-            if (wrapX)
-            {
-                // Horizontally
-                currentRiverMap.SetTile(
-                    new Vector3Int(parameters.Width - x, y, 0), newTile);
-            }
-            if (wrapY)
-            {
-                // Vertically
-                currentRiverMap.SetTile(
-                    new Vector3Int(x, parameters.Height - y, 0), newTile);
-            }
-            if (wrapX && wrapY)
-            {
-                // Corner wrapping in both dimensions
-                currentRiverMap.SetTile(
-                    new Vector3Int(parameters.Width - x,
-                                   parameters.Height - y, 0), newTile);
-            }
+            SetRiverTile(x, y, newTile);
         }
 
         // Output coordinates of the tiles adjacent to the given corner
@@ -787,6 +767,39 @@ namespace WorldMapGen
                 y - 1, parameters.Height, parameters.WrapY);
             x = Globals.WrappedCoord(x, parameters.Width, parameters.WrapX);
             y = Globals.WrappedCoord(y, parameters.Height, parameters.WrapY);
+        }
+
+        // Set the river tile at the given corner position (and wrapped
+        // positions if necessary)
+        protected virtual void SetRiverTile(int x, int y, RiverTile tile)
+        {
+            currentRiverMap.SetTile(new Vector3Int(x, y, 0), tile);
+
+            // If the river is on a wrapping edge, place the same river tile on
+            // the opposite side
+            bool wrapX =
+                parameters.WrapX && (x == 0 || x == parameters.Width);
+            bool wrapY =
+                parameters.WrapY && (y == 0 || y == parameters.Height);
+            if (wrapX)
+            {
+                // Horizontally
+                currentRiverMap.SetTile(
+                    new Vector3Int(parameters.Width - x, y, 0), tile);
+            }
+            if (wrapY)
+            {
+                // Vertically
+                currentRiverMap.SetTile(
+                    new Vector3Int(x, parameters.Height - y, 0), tile);
+            }
+            if (wrapX && wrapY)
+            {
+                // Corner wrapping in both dimensions
+                currentRiverMap.SetTile(
+                    new Vector3Int(parameters.Width - x,
+                                   parameters.Height - y, 0), tile);
+            }
         }
 
         // Return true if any of the tiles around the given corner are ocean
