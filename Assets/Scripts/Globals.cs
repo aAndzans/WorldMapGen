@@ -40,12 +40,17 @@
             return System.BitConverter.ToSingle(bytes, 0);
         }
 
-        // If coord is within the range [0,max), return coord
-        // If it is outside that range and wrap is false, return -1
-        // Otherwise return coord % max
+        // If coord is outside the range [0,max) and wrap is false, return -1
+        // Otherwise return coord wrapped within that range
         public static int WrappedCoord(int coord, int max, bool wrap)
         {
-            if (coord < 0 || coord >= max)
+            if (coord < 0)
+            {
+                // Use positive modulo for negative values
+                if (wrap) return coord % max + max;
+                return -1;
+            }
+            if (coord >= max)
             {
                 if (wrap) return coord % max;
                 return -1;

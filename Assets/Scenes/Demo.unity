@@ -484,13 +484,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameters:
     customSeed: 1
-    seed: 200192718
+    seed: 280171906
     width: 200
     height: 130
     tileScale: {x: 200, y: 200}
     oceanCoverage: 0.71
     rotateWest: 0
-    wrapX: 0
+    wrapX: 1
     wrapY: 0
     noiseScale: 0.3
     tileTypes:
@@ -728,8 +728,8 @@ MonoBehaviour:
     saturationPressureConst1: 17.67
     saturationPressureConst2: 243.5
     moistureScaleHeightDivisor: 5385
-    riverRainfallMultiplier: 1
-    riverSlopeMultiplier: 1
+    riverRainfallMultiplier: 0.001
+    riverSlopeMultiplier: 75
     riverSourceUpSprite: {fileID: 21300000, guid: e28327222030da040b24b679c3fc442d,
       type: 3}
     riverSourceLeftSprite: {fileID: 21300002, guid: e28327222030da040b24b679c3fc442d,
