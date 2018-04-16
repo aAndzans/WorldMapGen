@@ -20,6 +20,8 @@
         }
 
         // Return the smallest float greater than x
+        // Function is based on the examples in
+        // https://stackoverflow.com/questions/14278248/find-the-float-just-below-a-value
         public static float IncrementFloat(float x)
         {
             // Do not change NaN or infinity
