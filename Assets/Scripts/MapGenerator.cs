@@ -214,6 +214,8 @@ namespace WorldMapGen
                         Mathf.Clamp01(currentTile.Elevation);
 
                     // Add the value to the sorted list
+                    // This insertion code is taken from
+                    // https://stackoverflow.com/questions/12172162/how-to-insert-item-into-list-in-order
                     int sortedIndex =
                         sortedNoise.BinarySearch(currentTile.Elevation);
                     if (sortedIndex < 0) sortedIndex = ~sortedIndex;
